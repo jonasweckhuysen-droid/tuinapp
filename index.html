@@ -3,77 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mijn Tuin Planner</title>
-
-    <!-- Manifest & Theme -->
-    <link rel="manifest" href="manifest.webmanifest">
-    <meta name="theme-color" content="#1f2937">
-
-    <!-- Favicon -->
-    <link rel="icon" href="images/logo-192.png">
-
-    <!-- Lucide Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/lucide-static@0.255.0/dist/lucide.min.css" rel="stylesheet">
-
-    <!-- CSS -->
+    <title>Tuin App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ===== App Header ===== -->
-    <header style="text-align:center; display:flex; justify-content:center; align-items:center; gap:10px; font-size:2em; color:#2c7a2c; margin:20px 0;">
-        <img src="images/logo-192.png" alt="Tuin Logo" style="width:40px; height:40px;">
-        Mijn Tuin Planner
-    </header>
+    <h1>Tuin App</h1>
 
-    <!-- ===== Eenvoudig Menu ===== -->
-    <div id="index-menu">
-        <div class="menu-group">
-            <select id="vak-select-add" class="menu-select">
-                <option value="" disabled selected>Kies vak</option>
-            </select>
-            <button onclick="openPlantSelectForDropdown()" class="menu-btn">
-                <i class="lucide lucide-seedling"></i> Plant toevoegen
-            </button>
-        </div>
-    </div>
+    <!-- Vak selectie -->
+    <label for="vak-select-add">Kies een vak:</label>
+    <select id="vak-select-add">
+        <option value="">-- Kies een vak --</option>
+    </select>
+    <button id="open-plant-select">Plant toevoegen</button>
 
-    <!-- ===== Tuin grid ===== -->
-    <div id="garden-grid"></div>
-
-    <!-- ===== Plant info modal ===== -->
-    <div id="plant-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="plant-name"></h2>
-            <p><strong>Wetenschappelijke naam:</strong> <span id="plant-scientific"></span></p>
-            <p><strong>Bemesting:</strong> <span id="plant-fertilization"></span></p>
-            <p><strong>Onderhoud:</strong> <span id="plant-maintenance"></span></p>
-            <p><strong>Licht:</strong> <span id="plant-light"></span></p>
-            <p><strong>Water:</strong> <span id="plant-water"></span></p>
-            <img id="plant-image" src="" alt="Plant afbeelding" style="max-width:100%;">
-        </div>
-    </div>
-
-    <!-- ===== Plant select modal ===== -->
+    <!-- Plant modal -->
     <div id="plant-select-modal" class="modal">
         <div class="modal-content">
             <span id="select-close" class="close">&times;</span>
-            <h3>Kies een plant</h3>
             <input type="text" id="plant-search" placeholder="Zoek plant...">
-            <div id="plant-options" class="plant-options"></div>
+            <div id="plant-options"></div>
         </div>
     </div>
 
-    <!-- JS -->
-    <script src="script.js"></script>
-    <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("sw.js")
-          .then(() => console.log("Service Worker geregistreerd"))
-          .catch((err) => console.error("Service Worker registratie mislukt:", err));
-      }
-    </script>
+    <!-- Garden grid -->
+    <h2>Jouw tuin</h2>
+    <div id="garden-grid" class="garden-grid"></div>
 
+    <script src="script.js"></script>
 </body>
 </html>
