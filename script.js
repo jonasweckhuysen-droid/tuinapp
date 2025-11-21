@@ -55,18 +55,44 @@ for (let i = 1; i <= vakkenAantal; i++) {
 
   vak.appendChild(vaknaam);
 
+  const selectModal = document.getElementById("plant-select-modal");
+const selectClose = document.getElementById("select-close");
+const plantOptionsDiv = document.getElementById("plant-options");
+
+let currentVak = null; // Het vak dat we willen vullen
+
+// Sluit plant selectiemodal
+selectClose.onclick = () => selectModal.style.display = "none";
+window.onclick = (event) => { 
+  if(event.target == selectModal) selectModal.style.display = "none"; 
+}
+
+// Plant selectiemodal vullen
+function openPlantSelect(vak) {
+  currentVak = vak;
+  plantOptionsDiv.innerHTML = "";
+  plantsData.forEach(plant => {
+    const img = document.createElement("img");
+    img.src = plant.image;
+    img.title = plant.name;
+    img.onclick = () => {
+      currentVak.dataset.plantId = plant.id;
+      // Voeg afbeelding toe in vak
+      const existingImg = currentVak.querySelector("img");
+      if(existingImg) existingImg.src = plant.image;
+      else currentVak.appendChild(img.cloneNode(true));
+      selectModal.style.display = "none";
+    };
+    plantOptionsDiv.appendChild(img);
+  });
+}
+
+// Vak click listener aanpassen
+document.querySelectorAll(".vak").forEach(vak => {
   vak.addEventListener("click", () => {
     if (!vak.dataset.plantId) {
-      const plantOptions = plantsData.map(p => `${p.id}: ${p.name}`).join("\n");
-      const choice = prompt(`Kies een plant:\n${plantOptions}`);
-      const plant = plantsData.find(p => p.id == choice);
-      if (plant) {
-        vak.dataset.plantId = plant.id;
-        // Afbeelding toevoegen
-        const img = document.createElement("img");
-        img.src = plant.image;
-        vak.appendChild(img);
-      }
+      openPlantSelect(vak); // Open visuele plant selector
+      selectModal.style.display = "block";
     } else {
       const plant = plantsData.find(p => p.id == vak.dataset.plantId);
       plantName.textContent = plant.name;
@@ -77,6 +103,8 @@ for (let i = 1; i <= vakkenAantal; i++) {
       modal.style.display = "block";
     }
   });
+});
+
 
   gardenGrid.appendChild(vak);
 }
