@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "Tomaat",
+    "scientificName": "Solanum lycopersicum",
+    "fertilization": "Om de 2 weken meststof voor groenten",
+    "maintenance": "Snoeien van zijtakken, regelmatig water geven",
+    "image": "images/tomaat.png"
+  },
+  {
+    "id": 2,
+    "name": "Basilicum",
+    "scientificName": "Ocimum basilicum",
+    "fertilization": "1x per maand met universele meststof",
+    "maintenance": "Bladeren regelmatig plukken om groei te stimuleren",
+    "image": "images/basilicum.png"
+  }
+]
