@@ -26,42 +26,17 @@
         Mijn Tuin Planner
     </header>
 
-    <!-- ===== Visueel indexmenu ===== -->
+    <!-- ===== Eenvoudig Menu ===== -->
     <div id="index-menu">
         <div class="menu-group">
             <select id="vak-select-add" class="menu-select">
                 <option value="" disabled selected>Kies vak</option>
+                <!-- Dynamisch vakken toevoegen via script.js -->
             </select>
             <button onclick="openPlantSelectForDropdown()" class="menu-btn">
-                <i class="lucide lucide-seedling"></i> Planten toevoegen
+                <i class="lucide lucide-seedling"></i> Plant toevoegen
             </button>
         </div>
-
-        <div class="menu-group">
-            <select id="vak-select-rename" class="menu-select">
-                <option value="" disabled selected>Kies vak</option>
-            </select>
-            <button onclick="renameVakForDropdown()" class="menu-btn">
-                <i class="lucide lucide-edit"></i> Vak naam aanpassen
-            </button>
-        </div>
-
-        <button onclick="scrollToTuin()" class="menu-btn">
-            <i class="lucide lucide-layers"></i> Tuin overzicht
-        </button>
-
-        <div class="menu-group">
-            <select id="vak-select-info" class="menu-select">
-                <option value="" disabled selected>Kies vak</option>
-            </select>
-            <button onclick="showPlantenInfoForDropdown()" class="menu-btn">
-                <i class="lucide lucide-info"></i> Planten info
-            </button>
-        </div>
-
-        <button onclick="showSettingsForMenu()" class="menu-btn">
-            <i class="lucide lucide-settings"></i> Instellingen
-        </button>
     </div>
 
     <!-- ===== Tuin grid ===== -->
@@ -93,13 +68,12 @@
     <!-- JS -->
     <script src="script.js"></script>
     <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-      .then(() => console.log("Service Worker geregistreerd"))
-      .catch((err) => console.error("Service Worker registratie mislukt:", err));
-  }
-</script>
-
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js")
+          .then(() => console.log("Service Worker geregistreerd"))
+          .catch((err) => console.error("Service Worker registratie mislukt:", err));
+      }
+    </script>
 
 </body>
 </html>
