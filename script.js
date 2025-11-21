@@ -1,14 +1,21 @@
 const backendUrl = "https://tuin-backend.onrender.com";
 
-// ===== Fetch planten via backend =====
+// ==========================
+// Planten laden van backend
+// ==========================
 async function fetchPlants(query = "") {
     try {
         const response = await fetch(`${backendUrl}/plants`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        let plants = data.data || [];
+        if (!response.ok) throw new Error("Backend fout");
 
-        // Zoekfilter
+        const data = await response.json();
+        let plants = data.data || data.plants || [];
+
+        if (!Array.isArray(plants)) {
+            console.error("Back-end data is geen lijst:", data);
+            return [];
+        }
+
         if (query) {
             plants = plants.filter(p =>
                 (p.common_name && p.common_name.toLowerCase().includes(query.toLowerCase())) ||
@@ -18,15 +25,18 @@ async function fetchPlants(query = "") {
 
         return plants;
     } catch (err) {
-        console.error("Fout bij backend fetch:", err);
+        console.error("Fout bij het laden van planten:", err);
         return [];
     }
 }
 
-// ===== Init vak select =====
+// ==========================
+// Vakken invullen
+// ==========================
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
     const vakken = ["Voortuin", "Achtertuin", "Serre"];
+
     vakken.forEach(vak => {
         const option = document.createElement("option");
         option.value = vak;
@@ -35,90 +45,115 @@ function initVakSelect() {
     });
 }
 
-// ===== Open plant select modal =====
+// ==========================
+// Plantmodal openen
+// ==========================
 async function openPlantSelectForDropdown() {
-    const vakSelect = document.getElementById("vak-select-add");
-    const selectedVak = vakSelect.value;
-
+    const selectedVak = document.getElementById("vak-select-add").value;
     if (!selectedVak) {
         alert("Kies eerst een vak!");
         return;
     }
 
     const plantOptionsContainer = document.getElementById("plant-options");
-    plantOptionsContainer.innerHTML = "";
+    plantOptionsContainer.innerHTML = "Planten laden...";
 
     const plants = await fetchPlants();
+
+    plantOptionsContainer.innerHTML = "";
+
     if (plants.length === 0) {
         plantOptionsContainer.textContent = "Geen planten gevonden.";
         return;
     }
 
-    renderPlantOptions(plants, selectedVak);
+    plants.forEach(p => createPlantOption(p, selectedVak));
+
     document.getElementById("plant-select-modal").style.display = "block";
 }
 
-// ===== Render plant opties =====
-function renderPlantOptions(plants, selectedVak) {
+// ==========================
+// Plant optie maken
+// ==========================
+function createPlantOption(plant, vak) {
     const container = document.getElementById("plant-options");
-    container.innerHTML = "";
 
-    plants.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "plant-option";
+    const div = document.createElement("div");
+    div.className = "plant-option";
 
-        const img = document.createElement("img");
-        img.src = p.image_url || "images/logo-192.png";
-        img.alt = p.common_name || p.scientific_name;
-        img.onclick = () => addPlantToVak(selectedVak, p);
+    const img = document.createElement("img");
+    img.src = plant.image_url || "images/logo-192.png";
+    img.alt = plant.common_name || plant.scientific_name;
 
-        const nameDiv = document.createElement("div");
-        nameDiv.textContent = p.common_name || p.scientific_name;
-        nameDiv.className = "plant-name";
+    img.onclick = () => addPlantToVak(vak, plant);
 
-        div.appendChild(img);
-        div.appendChild(nameDiv);
-        container.appendChild(div);
-    });
+    const nameDiv = document.createElement("div");
+    nameDiv.textContent = plant.common_name || plant.scientific_name;
+    nameDiv.className = "plant-name";
+
+    div.appendChild(img);
+    div.appendChild(nameDiv);
+    container.appendChild(div);
 }
 
-// ===== Zoekfunctie =====
-document.getElementById("plant-search").addEventListener("input", async (e) => {
+// ==========================
+// Zoeken
+// ==========================
+document.getElementById("plant-search").addEventListener("input", async e => {
     const query = e.target.value;
     const selectedVak = document.getElementById("vak-select-add").value;
+    const plantOptionsContainer = document.getElementById("plant-options");
+    plantOptionsContainer.innerHTML = "Zoeken...";
+
     const plants = await fetchPlants(query);
 
-    renderPlantOptions(plants, selectedVak);
+    plantOptionsContainer.innerHTML = "";
+
+    if (plants.length === 0) {
+        plantOptionsContainer.textContent = "Geen planten gevonden.";
+        return;
+    }
+
+    plants.forEach(p => createPlantOption(p, selectedVak));
 });
 
-// ===== Plant toevoegen =====
+// ==========================
+// Plant toevoegen aan vak
+// ==========================
 function addPlantToVak(vak, plant) {
     const gardenGrid = document.getElementById("garden-grid");
 
     const plantDiv = document.createElement("div");
     plantDiv.className = "vak";
 
+    const img = document.createElement("img");
+    img.src = plant.image_url || "images/logo-192.png";
+
     const nameDiv = document.createElement("div");
     nameDiv.className = "vaknaam";
     nameDiv.textContent = `${plant.common_name || plant.scientific_name} (${vak})`;
 
-    const img = document.createElement("img");
-    img.src = plant.image_url || "images/logo-192.png";
-    img.alt = plant.common_name || plant.scientific_name;
-
     plantDiv.appendChild(img);
     plantDiv.appendChild(nameDiv);
+
     gardenGrid.appendChild(plantDiv);
 
     document.getElementById("plant-select-modal").style.display = "none";
 }
 
-// ===== Close modal =====
-document.getElementById("select-close").onclick = () =>
+// ==========================
+// Modal sluiten
+// ==========================
+document.getElementById("select-close").onclick = () => {
     document.getElementById("plant-select-modal").style.display = "none";
+};
 
-// ===== Init =====
+// ==========================
+// Init
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
     initVakSelect();
-    document.getElementById("open-plant-select").onclick = openPlantSelectForDropdown;
+    document
+        .getElementById("open-plant-select")
+        .addEventListener("click", openPlantSelectForDropdown);
 });
