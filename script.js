@@ -40,7 +40,6 @@ async function fetchPlants() {
     try {
         const response = await fetch(`https://trefle.io/api/v1/plants?token=${TREFLE_TOKEN}&page=1`);
         const data = await response.json();
-        // Sla plant basisinfo op, we doen detail call later
         plantsData = data.data.map(plant => ({
             id: plant.id,
             name: plant.common_name || plant.scientific_name,
@@ -84,7 +83,6 @@ function buildGardenGrid() {
         vak.classList.add("vak");
         vak.dataset.plantId = null;
 
-        // Vaknaam
         const vaknaam = document.createElement("span");
         vaknaam.classList.add("vaknaam");
         vaknaam.textContent = savedNames[`vak${i}`] || `Vak ${i}`;
@@ -99,15 +97,12 @@ function buildGardenGrid() {
         }
         vak.appendChild(vaknaam);
 
-        // Vak click event
         vak.addEventListener("click", async () => {
             if (!vak.dataset.plantId) {
-                // Open plant selectiemodal
                 currentVak = vak;
                 openPlantSelect();
                 selectModal.style.display = "block";
             } else {
-                // Haal details op van de geselecteerde plant
                 const plantId = vak.dataset.plantId;
                 const plant = plantsData.find(p => p.id == plantId);
                 if(!plant) return;
@@ -139,7 +134,6 @@ function openPlantSelect() {
         img.title = plant.name;
         img.onclick = () => {
             currentVak.dataset.plantId = plant.id;
-            // Voeg afbeelding toe in vak
             const existingImg = currentVak.querySelector("img");
             if(existingImg) existingImg.src = plant.image;
             else currentVak.appendChild(img.cloneNode(true));
