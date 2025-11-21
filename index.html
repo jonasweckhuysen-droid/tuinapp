@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mijn Tuin App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Mijn Tuin</h1>
+  
+  <div id="garden-grid"></div>
+
+  <!-- Modal voor plant info -->
+  <div id="plant-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="plant-name"></h2>
+      <p><strong>Wetenschappelijke naam:</strong> <span id="plant-scientific"></span></p>
+      <p><strong>Bemesting:</strong> <span id="plant-fertilization"></span></p>
+      <p><strong>Onderhoud:</strong> <span id="plant-maintenance"></span></p>
+      <img id="plant-image" src="" alt="" style="max-width:200px;">
+    </div>
+  </div>
+
+  <script src="plants.json" type="application/json"></script>
+  <script src="script.js"></script>
+</body>
+</html>
