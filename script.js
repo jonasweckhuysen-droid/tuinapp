@@ -1,43 +1,13 @@
-const backendUrl = "https://tuin-backend.onrender.com";
-
 // ==========================
-// Planten laden van backend
+// Vakken
 // ==========================
-async function fetchPlants(query = "") {
-    try {
-        const response = await fetch(`${backendUrl}/plants`);
-        if (!response.ok) throw new Error("Backend fout");
+let vakkenData = {};
 
-        const data = await response.json();
-        let plants = data.data || data.plants || [];
-
-        if (!Array.isArray(plants)) {
-            console.error("Back-end data is geen lijst:", data);
-            return [];
-        }
-
-        if (query) {
-            plants = plants.filter(p =>
-                (p.common_name && p.common_name.toLowerCase().includes(query.toLowerCase())) ||
-                (p.scientific_name && p.scientific_name.toLowerCase().includes(query.toLowerCase()))
-            );
-        }
-
-        return plants;
-    } catch (err) {
-        console.error("Fout bij het laden van planten:", err);
-        return [];
-    }
-}
-
-// ==========================
-// Vakken invullen
-// ==========================
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
-    const vakken = ["Voortuin", "Achtertuin", "Serre"];
-
-    vakken.forEach(vak => {
+    const defaultVakken = ["Voortuin", "Achtertuin", "Serre"];
+    defaultVakken.forEach(vak => {
+        vakkenData[vak] = [];
         const option = document.createElement("option");
         option.value = vak;
         option.textContent = vak;
@@ -45,129 +15,101 @@ function initVakSelect() {
     });
 }
 
+// Vak toevoegen
+document.getElementById("add-vak-btn").onclick = () => {
+    const input = document.getElementById("vak-naam-input");
+    const vakNaam = input.value.trim();
+    if (!vakNaam) return;
+
+    if (!vakkenData[vakNaam]) vakkenData[vakNaam] = [];
+
+    const vakSelect = document.getElementById("vak-select-add");
+    const option = document.createElement("option");
+    option.value = vakNaam;
+    option.textContent = vakNaam;
+    vakSelect.appendChild(option);
+    vakSelect.value = vakNaam;
+
+    input.value = "";
+    renderGarden();
+};
+
 // ==========================
-// Plantmodal openen
+// Plant modal
 // ==========================
-async function openPlantSelectForDropdown() {
+document.getElementById("open-plant-select").onclick = () => {
     const selectedVak = document.getElementById("vak-select-add").value;
     if (!selectedVak) {
         alert("Kies eerst een vak!");
         return;
     }
-
-    const plantOptionsContainer = document.getElementById("plant-options");
-    plantOptionsContainer.innerHTML = "Planten laden...";
-
-    const plants = await fetchPlants();
-
-    plantOptionsContainer.innerHTML = "";
-
-    if (plants.length === 0) {
-        plantOptionsContainer.textContent = "Geen planten gevonden.";
-        return;
-    }
-
-    plants.forEach(p => createPlantOption(p, selectedVak));
-
     document.getElementById("plant-select-modal").style.display = "block";
-}
+};
 
-// ==========================
-// Plant optie maken
-// ==========================
-function createPlantOption(plant, vak) {
-    const container = document.getElementById("plant-options");
-
-    const div = document.createElement("div");
-    div.className = "plant-option";
-
-    // FIX: juiste URL
-    const imgUrl =
-        (plant.default_image && plant.default_image.thumbnail) ||
-        "images/logo-192.png";
-
-    const img = document.createElement("img");
-    img.src = imgUrl;
-    img.alt = plant.common_name || plant.scientific_name;
-
-    img.onclick = () => addPlantToVak(vak, plant);
-
-    const nameDiv = document.createElement("div");
-    nameDiv.textContent =
-        plant.common_name && plant.common_name.trim() !== ""
-            ? plant.common_name
-            : plant.scientific_name;
-    nameDiv.className = "plant-name";
-
-    div.appendChild(img);
-    div.appendChild(nameDiv);
-    container.appendChild(div);
-}
-
-// ==========================
-// Zoeken
-// ==========================
-document.getElementById("plant-search").addEventListener("input", async e => {
-    const query = e.target.value;
-    const selectedVak = document.getElementById("vak-select-add").value;
-    const container = document.getElementById("plant-options");
-
-    container.innerHTML = "Zoeken...";
-
-    const plants = await fetchPlants(query);
-
-    container.innerHTML = "";
-
-    if (plants.length === 0) {
-        container.textContent = "Geen planten gevonden.";
+// Plant toevoegen (zelf)
+document.getElementById("add-custom-plant").onclick = () => {
+    const name = document.getElementById("custom-plant-name").value.trim();
+    const img = document.getElementById("custom-plant-img").value.trim();
+    const vak = document.getElementById("vak-select-add").value;
+    if (!name || !vak) {
+        alert("Vul plantnaam en vak in!");
         return;
     }
 
-    plants.forEach(p => createPlantOption(p, selectedVak));
-});
+    vakkenData[vak].push({ name, img: img || "images/logo-192.png" });
+    renderGarden();
 
-// ==========================
-// Plant toevoegen aan vak
-// ==========================
-function addPlantToVak(vak, plant) {
-    const gardenGrid = document.getElementById("garden-grid");
-
-    const plantDiv = document.createElement("div");
-    plantDiv.className = "vak";
-
-    const imgUrl =
-        (plant.default_image && plant.default_image.thumbnail) ||
-        "images/logo-192.png";
-
-    const img = document.createElement("img");
-    img.src = imgUrl;
-
-    const nameDiv = document.createElement("div");
-    nameDiv.className = "vaknaam";
-    nameDiv.textContent =
-        `${plant.common_name || plant.scientific_name} (${vak})`;
-
-    plantDiv.appendChild(img);
-    plantDiv.appendChild(nameDiv);
-
-    gardenGrid.appendChild(plantDiv);
-
+    document.getElementById("custom-plant-name").value = "";
+    document.getElementById("custom-plant-img").value = "";
     document.getElementById("plant-select-modal").style.display = "none";
-}
+};
 
-// ==========================
 // Modal sluiten
-// ==========================
 document.getElementById("select-close").onclick = () => {
     document.getElementById("plant-select-modal").style.display = "none";
 };
+
+// ==========================
+// Garden renderen
+// ==========================
+function renderGarden() {
+    const gardenGrid = document.getElementById("garden-grid");
+    gardenGrid.innerHTML = "";
+
+    Object.keys(vakkenData).forEach(vak => {
+        const vakDiv = document.createElement("div");
+        vakDiv.className = "vak";
+
+        const vakTitle = document.createElement("div");
+        vakTitle.className = "vak-title";
+        vakTitle.textContent = vak;
+        vakDiv.appendChild(vakTitle);
+
+        vakkenData[vak].forEach(plant => {
+            const plantDiv = document.createElement("div");
+            plantDiv.className = "plant-item";
+
+            const img = document.createElement("img");
+            img.src = plant.img;
+            img.alt = plant.name;
+
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = plant.name;
+
+            plantDiv.appendChild(img);
+            plantDiv.appendChild(nameSpan);
+
+            vakDiv.appendChild(plantDiv);
+        });
+
+        gardenGrid.appendChild(vakDiv);
+    });
+}
 
 // ==========================
 // Init
 // ==========================
 document.addEventListener("DOMContentLoaded", () => {
     initVakSelect();
-    document
-        .getElementById("open-plant-select")
-        .addEventListener("click", openPlantSelectForDropdown);
+    renderGarden();
 });
