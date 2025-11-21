@@ -31,7 +31,6 @@
         <div class="menu-group">
             <select id="vak-select-add" class="menu-select">
                 <option value="" disabled selected>Kies vak</option>
-                <!-- Dynamisch vakken toevoegen via script.js -->
             </select>
             <button onclick="openPlantSelectForDropdown()" class="menu-btn">
                 <i class="lucide lucide-seedling"></i> Plant toevoegen
@@ -61,6 +60,7 @@
         <div class="modal-content">
             <span id="select-close" class="close">&times;</span>
             <h3>Kies een plant</h3>
+            <input type="text" id="plant-search" placeholder="Zoek plant...">
             <div id="plant-options" class="plant-options"></div>
         </div>
     </div>
