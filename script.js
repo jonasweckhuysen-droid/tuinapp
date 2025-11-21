@@ -21,8 +21,6 @@ const plantOptionsDiv = document.getElementById("plant-options");
 // ==================== Data ====================
 let plantsData = [];
 let currentVak = null;
-
-// ==================== Local Storage voor vaknamen ====================
 const savedNames = JSON.parse(localStorage.getItem("vakNames")) || {};
 
 // ==================== Modals sluiten ====================
@@ -44,7 +42,6 @@ async function fetchPlants() {
             scientificName: plant.scientific_name,
             image: plant.image_url || "images/default.png"
         }));
-        console.log("Planten geladen:", plantsData);
     } catch(err) {
         console.error("Fout bij Trefle API:", err);
     }
@@ -76,7 +73,6 @@ async function fetchPlantDetails(plantId) {
 
 // ==================== Drag & Drop ====================
 let draggedPlant = null;
-
 function makeDraggable(img, plantId) {
     img.draggable = true;
     img.dataset.plantId = plantId;
@@ -112,7 +108,7 @@ function buildGardenGrid() {
     for (let i = 1; i <= vakkenAantal; i++) {
         const vak = document.createElement("div");
         vak.classList.add("vak");
-        vak.planten = []; // array voor meerdere planten
+        vak.planten = [];
 
         const vaknaam = document.createElement("span");
         vaknaam.classList.add("vaknaam");
@@ -124,6 +120,7 @@ function buildGardenGrid() {
                 vaknaam.textContent = newName;
                 savedNames[`vak${i}`] = newName;
                 localStorage.setItem("vakNames", JSON.stringify(savedNames));
+                populateVakDropdowns();
             }
         }
         vak.appendChild(vaknaam);
@@ -150,17 +147,13 @@ function openPlantSelect() {
         makeDraggable(img, plant.id);
 
         img.onclick = () => {
-            // Voeg plant toe aan vak array
             currentVak.planten.push({id: plant.id, imageURL: plant.image});
 
-            // Maak afbeelding in vak
             const plantImg = document.createElement("img");
             plantImg.src = plant.image;
             plantImg.dataset.plantId = plant.id;
-
             makeDraggable(plantImg, plant.id);
 
-            // Klik op plant afbeelding voor info modal
             plantImg.addEventListener("click", async (e) => {
                 e.stopPropagation();
                 const details = await fetchPlantDetails(plant.id);
@@ -182,51 +175,51 @@ function openPlantSelect() {
     });
 }
 
-// ==================== Init ====================
-async function init() {
-    await fetchPlants();
-    buildGardenGrid();
+// ==================== Dropdown functies ====================
+function populateVakDropdowns() {
+    const selectIds = ["vak-select-add", "vak-select-rename", "vak-select-info"];
+    selectIds.forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = `<option value="" disabled selected>Kies vak</option>`;
+        for(let i=1; i<=vakkenAantal; i++){
+            const vak = gardenGrid.children[i-1];
+            const option = document.createElement("option");
+            option.value = i-1;
+            option.textContent = vak.querySelector(".vaknaam").textContent;
+            select.appendChild(option);
+        }
+    });
 }
-// ==================================================
-// Menu functies
-// ==================================================
 
-// Planten toevoegen vanuit menu
-function openPlantSelectForMenu() {
-    // Vraag gebruiker eerst om vak te kiezen
-    const vakIndex = prompt(`Selecteer vaknummer (1-${vakkenAantal}) om een plant toe te voegen:`);
-    const vak = gardenGrid.children[vakIndex-1];
-    if(!vak) return alert("Ongeldig vaknummer.");
-    currentVak = vak;
+function openPlantSelectForDropdown() {
+    const select = document.getElementById("vak-select-add");
+    const vakIndex = select.value;
+    if(vakIndex === "") return alert("Kies eerst een vak!");
+    currentVak = gardenGrid.children[vakIndex];
     openPlantSelect();
     selectModal.style.display = "block";
 }
 
-// Vaknaam aanpassen vanuit menu
-function renameVakForMenu() {
-    const vakIndex = prompt(`Selecteer vaknummer (1-${vakkenAantal}) om naam aan te passen:`);
-    const vak = gardenGrid.children[vakIndex-1];
-    if(!vak) return alert("Ongeldig vaknummer.");
-
+function renameVakForDropdown() {
+    const select = document.getElementById("vak-select-rename");
+    const vakIndex = select.value;
+    if(vakIndex === "") return alert("Kies eerst een vak!");
+    const vak = gardenGrid.children[vakIndex];
     const vaknaam = vak.querySelector(".vaknaam");
     const newName = prompt("Nieuwe naam voor dit vak:", vaknaam.textContent);
     if(newName) {
         vaknaam.textContent = newName;
-        savedNames[`vak${vakIndex}`] = newName;
+        savedNames[`vak${parseInt(vakIndex)+1}`] = newName;
         localStorage.setItem("vakNames", JSON.stringify(savedNames));
+        populateVakDropdowns();
     }
 }
 
-// Scroll naar tuin-grid (Tuin overzicht)
-function scrollToTuin() {
-    gardenGrid.scrollIntoView({behavior: "smooth"});
-}
-
-// Planten info vanuit menu
-function showPlantenInfoForMenu() {
-    const vakIndex = prompt(`Selecteer vaknummer (1-${vakkenAantal}) om planten info te bekijken:`);
-    const vak = gardenGrid.children[vakIndex-1];
-    if(!vak) return alert("Ongeldig vaknummer.");
+function showPlantenInfoForDropdown() {
+    const select = document.getElementById("vak-select-info");
+    const vakIndex = select.value;
+    if(vakIndex === "") return alert("Kies eerst een vak!");
+    const vak = gardenGrid.children[vakIndex];
     if(!vak.planten || vak.planten.length === 0) return alert("Geen planten in dit vak.");
 
     let infoText = "Planten in dit vak:\n";
@@ -237,10 +230,19 @@ function showPlantenInfoForMenu() {
     alert(infoText);
 }
 
-// Instellingen placeholder
+function scrollToTuin() {
+    gardenGrid.scrollIntoView({behavior: "smooth"});
+}
+
 function showSettingsForMenu() {
     alert("Instellingen functie kan hier later uitgebreid worden.");
 }
 
-// Start de app
+// ==================== Init ====================
+async function init() {
+    await fetchPlants();
+    buildGardenGrid();
+    populateVakDropdowns();
+}
+
 init();
