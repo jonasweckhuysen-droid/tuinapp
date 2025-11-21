@@ -8,6 +8,7 @@ async function fetchPlants(query = "") {
         const data = await response.json();
         let plants = data.data || [];
 
+        // Zoekfilter
         if (query) {
             plants = plants.filter(p =>
                 (p.common_name && p.common_name.toLowerCase().includes(query.toLowerCase())) ||
@@ -38,6 +39,7 @@ function initVakSelect() {
 async function openPlantSelectForDropdown() {
     const vakSelect = document.getElementById("vak-select-add");
     const selectedVak = vakSelect.value;
+
     if (!selectedVak) {
         alert("Kies eerst een vak!");
         return;
@@ -52,44 +54,14 @@ async function openPlantSelectForDropdown() {
         return;
     }
 
-    plants.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "plant-option";
-
-        // Voeg afbeelding toe indien beschikbaar
-        const img = document.createElement("img");
-        img.src = p.image_url || "images/logo-192.png";
-        img.alt = p.common_name || p.scientific_name;
-
-        // Klik event: plant toevoegen
-        img.onclick = () => addPlantToVak(selectedVak, p);
-
-        // Voeg naam onder de afbeelding toe
-        const nameDiv = document.createElement("div");
-        nameDiv.textContent = p.common_name || p.scientific_name;
-        nameDiv.style.textAlign = "center";
-        nameDiv.style.fontSize = "12px";
-        nameDiv.style.marginTop = "4px";
-
-        div.appendChild(img);
-        div.appendChild(nameDiv);
-        plantOptionsContainer.appendChild(div);
-    });
-
+    renderPlantOptions(plants, selectedVak);
     document.getElementById("plant-select-modal").style.display = "block";
 }
 
-// ===== Plant search =====
-document.getElementById("plant-search").addEventListener("input", async (e) => {
-    const query = e.target.value;
-    const plantOptionsContainer = document.getElementById("plant-options");
-    plantOptionsContainer.innerHTML = "";
-
-    const plants = await fetchPlants(query);
-    if (plants.length === 0) {
-        plantOptionsContainer.textContent = "Geen planten gevonden.";
-        return;
-    }
+// ===== Render plant opties =====
+function renderPlantOptions(plants, selectedVak) {
+    const container = document.getElementById("plant-options");
+    container.innerHTML = "";
 
     plants.forEach(p => {
         const div = document.createElement("div");
@@ -98,33 +70,38 @@ document.getElementById("plant-search").addEventListener("input", async (e) => {
         const img = document.createElement("img");
         img.src = p.image_url || "images/logo-192.png";
         img.alt = p.common_name || p.scientific_name;
-        img.onclick = () => addPlantToVak(document.getElementById("vak-select-add").value, p);
+        img.onclick = () => addPlantToVak(selectedVak, p);
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = p.common_name || p.scientific_name;
-        nameDiv.style.textAlign = "center";
-        nameDiv.style.fontSize = "12px";
-        nameDiv.style.marginTop = "4px";
+        nameDiv.className = "plant-name";
 
         div.appendChild(img);
         div.appendChild(nameDiv);
-        plantOptionsContainer.appendChild(div);
+        container.appendChild(div);
     });
+}
+
+// ===== Zoekfunctie =====
+document.getElementById("plant-search").addEventListener("input", async (e) => {
+    const query = e.target.value;
+    const selectedVak = document.getElementById("vak-select-add").value;
+    const plants = await fetchPlants(query);
+
+    renderPlantOptions(plants, selectedVak);
 });
 
-// ===== Plant toevoegen aan vak =====
+// ===== Plant toevoegen =====
 function addPlantToVak(vak, plant) {
     const gardenGrid = document.getElementById("garden-grid");
 
     const plantDiv = document.createElement("div");
     plantDiv.className = "vak";
 
-    // Voeg plantnaam toe
     const nameDiv = document.createElement("div");
     nameDiv.className = "vaknaam";
     nameDiv.textContent = `${plant.common_name || plant.scientific_name} (${vak})`;
 
-    // Voeg afbeelding toe
     const img = document.createElement("img");
     img.src = plant.image_url || "images/logo-192.png";
     img.alt = plant.common_name || plant.scientific_name;
@@ -133,16 +110,15 @@ function addPlantToVak(vak, plant) {
     plantDiv.appendChild(nameDiv);
     gardenGrid.appendChild(plantDiv);
 
-    // Sluit modal
     document.getElementById("plant-select-modal").style.display = "none";
 }
 
 // ===== Close modal =====
-document.getElementById("select-close").onclick = () => {
+document.getElementById("select-close").onclick = () =>
     document.getElementById("plant-select-modal").style.display = "none";
-};
 
-// ===== Init alles =====
+// ===== Init =====
 document.addEventListener("DOMContentLoaded", () => {
     initVakSelect();
+    document.getElementById("open-plant-select").onclick = openPlantSelectForDropdown;
 });
