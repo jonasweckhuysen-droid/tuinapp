@@ -1,110 +1,159 @@
+// ==================== Config ====================
+const TREFLE_TOKEN = "usr-46Bb6d5A0nMov4n2jw-C8mTAKvtpetDHMwDXlDEr2aA";
 const vakkenAantal = 8;
 const gardenGrid = document.getElementById('garden-grid');
-let plantsData = [
-  {
-    "id": 1,
-    "name": "Tomaat",
-    "scientificName": "Solanum lycopersicum",
-    "fertilization": "Om de 2 weken meststof voor groenten",
-    "maintenance": "Snoeien van zijtakken, regelmatig water geven",
-    "image": "images/tomaat.png"
-  },
-  {
-    "id": 2,
-    "name": "Basilicum",
-    "scientificName": "Ocimum basilicum",
-    "fertilization": "1x per maand met universele meststof",
-    "maintenance": "Bladeren regelmatig plukken om groei te stimuleren",
-    "image": "images/basilicum.png"
-  }
-];
 
-// Modal
-const modal = document.getElementById("plant-modal");
-const spanClose = document.getElementsByClassName("close")[0];
+// ==================== Modals ====================
+const plantModal = document.getElementById("plant-modal");
+const modalClose = document.getElementsByClassName("close")[0];
 const plantName = document.getElementById("plant-name");
 const plantScientific = document.getElementById("plant-scientific");
 const plantFertilization = document.getElementById("plant-fertilization");
 const plantMaintenance = document.getElementById("plant-maintenance");
+const plantLight = document.getElementById("plant-light");
+const plantWater = document.getElementById("plant-water");
 const plantImage = document.getElementById("plant-image");
 
-spanClose.onclick = () => modal.style.display = "none";
-window.onclick = (event) => { if(event.target == modal) modal.style.display = "none"; }
-
-const savedNames = JSON.parse(localStorage.getItem("vakNames")) || {};
-
-// Vak grid opbouwen
-for (let i = 1; i <= vakkenAantal; i++) {
-  const vak = document.createElement("div");
-  vak.classList.add("vak");
-  vak.dataset.plantId = null;
-
-  // Vaknaam
-  const vaknaam = document.createElement("span");
-  vaknaam.classList.add("vaknaam");
-  vaknaam.textContent = savedNames[`vak${i}`] || `Vak ${i}`;
-  vaknaam.onclick = (e) => {
-    e.stopPropagation();
-    const newName = prompt("Nieuwe naam voor dit vak:", vaknaam.textContent);
-    if(newName) {
-      vaknaam.textContent = newName;
-      savedNames[`vak${i}`] = newName;
-      localStorage.setItem("vakNames", JSON.stringify(savedNames));
-    }
-  }
-
-  vak.appendChild(vaknaam);
-
-  const selectModal = document.getElementById("plant-select-modal");
+// Plant selectiemodal
+const selectModal = document.getElementById("plant-select-modal");
 const selectClose = document.getElementById("select-close");
 const plantOptionsDiv = document.getElementById("plant-options");
 
-let currentVak = null; // Het vak dat we willen vullen
+// ==================== Data ====================
+let plantsData = [];
+let currentVak = null;
 
-// Sluit plant selectiemodal
+// ==================== Local Storage voor vaknamen ====================
+const savedNames = JSON.parse(localStorage.getItem("vakNames")) || {};
+
+// ==================== Modals sluiten ====================
+modalClose.onclick = () => plantModal.style.display = "none";
 selectClose.onclick = () => selectModal.style.display = "none";
+
 window.onclick = (event) => { 
+  if(event.target == plantModal) plantModal.style.display = "none"; 
   if(event.target == selectModal) selectModal.style.display = "none"; 
 }
 
-// Plant selectiemodal vullen
-function openPlantSelect(vak) {
-  currentVak = vak;
-  plantOptionsDiv.innerHTML = "";
-  plantsData.forEach(plant => {
-    const img = document.createElement("img");
-    img.src = plant.image;
-    img.title = plant.name;
-    img.onclick = () => {
-      currentVak.dataset.plantId = plant.id;
-      // Voeg afbeelding toe in vak
-      const existingImg = currentVak.querySelector("img");
-      if(existingImg) existingImg.src = plant.image;
-      else currentVak.appendChild(img.cloneNode(true));
-      selectModal.style.display = "none";
-    };
-    plantOptionsDiv.appendChild(img);
-  });
-}
-
-// Vak click listener aanpassen
-document.querySelectorAll(".vak").forEach(vak => {
-  vak.addEventListener("click", () => {
-    if (!vak.dataset.plantId) {
-      openPlantSelect(vak); // Open visuele plant selector
-      selectModal.style.display = "block";
-    } else {
-      const plant = plantsData.find(p => p.id == vak.dataset.plantId);
-      plantName.textContent = plant.name;
-      plantScientific.textContent = plant.scientificName;
-      plantFertilization.textContent = plant.fertilization;
-      plantMaintenance.textContent = plant.maintenance;
-      plantImage.src = plant.image;
-      modal.style.display = "block";
+// ==================== Fetch Trefle Planten ====================
+async function fetchPlants() {
+    try {
+        const response = await fetch(`https://trefle.io/api/v1/plants?token=${TREFLE_TOKEN}&page=1`);
+        const data = await response.json();
+        // Sla plant basisinfo op, we doen detail call later
+        plantsData = data.data.map(plant => ({
+            id: plant.id,
+            name: plant.common_name || plant.scientific_name,
+            scientificName: plant.scientific_name,
+            image: plant.image_url || "images/default.png"
+        }));
+        console.log("Planten geladen:", plantsData);
+    } catch(err) {
+        console.error("Fout bij Trefle API:", err);
     }
-  });
-});
-
-
-  gardenGrid.appendChild(vak);
 }
+
+// ==================== Fetch Trefle Plant Details ====================
+async function fetchPlantDetails(plantId) {
+    try {
+        const response = await fetch(`https://trefle.io/api/v1/plants/${plantId}?token=${TREFLE_TOKEN}`);
+        const data = await response.json();
+        const plant = data.data;
+
+        return {
+            fertilization: plant.specifications?.fertility || "Geen info",
+            maintenance: plant.growth?.growth_form || "Geen info",
+            light: plant.growth?.light || "Geen info",
+            water: plant.specifications?.water_use || "Geen info"
+        };
+    } catch(err) {
+        console.error("Fout bij Trefle plant details:", err);
+        return {
+            fertilization: "Geen info",
+            maintenance: "Geen info",
+            light: "Geen info",
+            water: "Geen info"
+        };
+    }
+}
+
+// ==================== Vak grid opbouwen ====================
+function buildGardenGrid() {
+    for (let i = 1; i <= vakkenAantal; i++) {
+        const vak = document.createElement("div");
+        vak.classList.add("vak");
+        vak.dataset.plantId = null;
+
+        // Vaknaam
+        const vaknaam = document.createElement("span");
+        vaknaam.classList.add("vaknaam");
+        vaknaam.textContent = savedNames[`vak${i}`] || `Vak ${i}`;
+        vaknaam.onclick = (e) => {
+            e.stopPropagation();
+            const newName = prompt("Nieuwe naam voor dit vak:", vaknaam.textContent);
+            if(newName) {
+                vaknaam.textContent = newName;
+                savedNames[`vak${i}`] = newName;
+                localStorage.setItem("vakNames", JSON.stringify(savedNames));
+            }
+        }
+        vak.appendChild(vaknaam);
+
+        // Vak click event
+        vak.addEventListener("click", async () => {
+            if (!vak.dataset.plantId) {
+                // Open plant selectiemodal
+                currentVak = vak;
+                openPlantSelect();
+                selectModal.style.display = "block";
+            } else {
+                // Haal details op van de geselecteerde plant
+                const plantId = vak.dataset.plantId;
+                const plant = plantsData.find(p => p.id == plantId);
+                if(!plant) return;
+
+                const details = await fetchPlantDetails(plantId);
+
+                plantName.textContent = plant.name;
+                plantScientific.textContent = plant.scientificName;
+                plantFertilization.textContent = details.fertilization;
+                plantMaintenance.textContent = details.maintenance;
+                plantLight.textContent = details.light;
+                plantWater.textContent = details.water;
+                plantImage.src = plant.image;
+
+                plantModal.style.display = "block";
+            }
+        });
+
+        gardenGrid.appendChild(vak);
+    }
+}
+
+// ==================== Plant selectiemodal ====================
+function openPlantSelect() {
+    plantOptionsDiv.innerHTML = "";
+    plantsData.forEach(plant => {
+        const img = document.createElement("img");
+        img.src = plant.image;
+        img.title = plant.name;
+        img.onclick = () => {
+            currentVak.dataset.plantId = plant.id;
+            // Voeg afbeelding toe in vak
+            const existingImg = currentVak.querySelector("img");
+            if(existingImg) existingImg.src = plant.image;
+            else currentVak.appendChild(img.cloneNode(true));
+            selectModal.style.display = "none";
+        };
+        plantOptionsDiv.appendChild(img);
+    });
+}
+
+// ==================== Init ====================
+async function init() {
+    await fetchPlants();
+    buildGardenGrid();
+}
+
+// Start de app
+init();
