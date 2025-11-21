@@ -7,14 +7,20 @@ const ASSETS_TO_CACHE = [
   "images/logo-512.png"
 ];
 
+// Install event – cache alle assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return Promise.all(
+        ASSETS_TO_CACHE.map((path) => {
+          return cache.add(new Request(path, { mode: "no-cors" }));
+        })
+      );
     })
   );
 });
 
+// Fetch event – serve cache first
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -23,6 +29,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
+// Activate event – oude caches verwijderen
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
