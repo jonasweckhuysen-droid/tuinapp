@@ -1,13 +1,14 @@
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
     padding: 10px;
-    background: #f0fff5;
+    background: linear-gradient(to bottom, #f0fff5 0%, #d0f5d0 100%);
 }
 
 .title {
     text-align: center;
     color: #2e8b57;
     font-size: 2em;
+    text-shadow: 1px 1px 2px #a0dca0;
 }
 
 .vak-select-container {
@@ -28,9 +29,11 @@ input, select, button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: transform 0.2s;
 }
 .btn-main:hover {
     background-color: #45a049;
+    transform: scale(1.05);
 }
 
 .garden-grid {
@@ -44,24 +47,35 @@ input, select, button {
     width: 150px;
     min-height: 120px;
     border: 2px dashed #2e8b57;
-    border-radius: 10px;
+    border-radius: 15px;
     padding: 10px;
-    background: #dfffe0;
+    background: #e6ffe6;
     box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: transform 0.2s;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.vak::before {
+    content: "🌿";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 18px;
 }
 
 .vak:hover {
-    transform: scale(1.05);
+    transform: scale(1.08);
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.2);
 }
 
 .vak-title {
     font-weight: bold;
     margin-bottom: 5px;
     color: #2e8b57;
+    text-align: center;
 }
 
 .plant-item {
@@ -79,6 +93,7 @@ input, select, button {
     border-radius: 5px;
 }
 
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -109,4 +124,9 @@ input, select, button {
 }
 .close:hover {
     color: black;
+}
+
+.plant-item span::before {
+    content: "🌸";
+    margin-right: 3px;
 }
