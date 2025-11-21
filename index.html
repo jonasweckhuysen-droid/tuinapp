@@ -1,43 +1,41 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuin App</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌿 Tuin App 🌿</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1 class="title">🌿 Tuin App 🌿</h1>
+<h1 class="title">🌸 Tuin App 🌸</h1>
 
-    <!-- Vak selectie & naam aanpassen -->
-    <div class="vak-select-container">
-        <label for="vak-select-add">Kies of maak een vak:</label>
-        <select id="vak-select-add">
-            <option value="">-- Kies een vak --</option>
-        </select>
-        <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
-        <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
-        <button id="open-plant-select" class="btn-main">Plant toevoegen</button>
+<div class="vak-select-container">
+    <label for="vak-select-add">Kies of maak een vak:</label>
+    <select id="vak-select-add">
+        <option value="">-- Kies een vak --</option>
+    </select>
+    <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
+    <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
+    <button id="open-plant-select" class="btn-main">Plant toevoegen</button>
+</div>
+
+<div id="plant-select-modal" class="modal">
+    <div class="modal-content">
+        <span id="select-close" class="close">&times;</span>
+        <h3>Kies of voeg een plant toe:</h3>
+        <input type="text" id="plant-search" placeholder="Zoek plant..." class="search-box">
+        <div id="plant-options" class="plant-options"></div>
+        <h4>Of voeg zelf een plant toe:</h4>
+        <input type="text" id="custom-plant-name" placeholder="Plant naam">
+        <input type="text" id="custom-plant-img" placeholder="Afbeeldings-URL">
+        <button id="add-custom-plant">Toevoegen</button>
     </div>
+</div>
 
-    <!-- Plant modal -->
-    <div id="plant-select-modal" class="modal">
-        <div class="modal-content">
-            <span id="select-close" class="close">&times;</span>
-            <input type="text" id="plant-search" placeholder="Zoek plant..." class="search-box">
-            <div id="plant-options" class="plant-options"></div>
-            <h4>Of voeg zelf een plant toe:</h4>
-            <input type="text" id="custom-plant-name" placeholder="Plant naam">
-            <input type="text" id="custom-plant-img" placeholder="Afbeeldings-URL">
-            <button id="add-custom-plant">Toevoegen</button>
-        </div>
-    </div>
+<h2>Jouw tuin</h2>
+<div id="garden-grid" class="garden-grid"></div>
 
-    <!-- Garden grid -->
-    <h2>Jouw tuin</h2>
-    <div id="garden-grid" class="garden-grid"></div>
-
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
