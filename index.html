@@ -12,10 +12,12 @@
   <div id="garden-grid"></div>
 
   <!-- Modal voor plant info -->
-  <div id="plant-modal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2 id="plant-name"></h2>
+ <!-- Plant selectiemodal -->
+<div id="plant-select-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="select-close">&times;</span>
+    <h2>Kies een plant</h2>
+    <div id="plant-options" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
       <p><strong>Wetenschappelijke naam:</strong> <span id="plant-scientific"></span></p>
       <p><strong>Bemesting:</strong> <span id="plant-fertilization"></span></p>
       <p><strong>Onderhoud:</strong> <span id="plant-maintenance"></span></p>
