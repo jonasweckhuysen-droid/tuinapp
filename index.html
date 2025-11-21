@@ -12,6 +12,36 @@
 
 <h1>Mijn Tuin</h1>
 
+  <div id="index-menu" style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px; justify-content:center;">
+
+    <button onclick="openPlantSelect()" class="menu-btn">
+        <i class="lucide lucide-seedling"></i>
+        <span>Planten toevoegen</span>
+    </button>
+
+    <button onclick="renameVak()" class="menu-btn">
+        <i class="lucide lucide-edit"></i>
+        <span>Vak naam aanpassen</span>
+    </button>
+
+    <button onclick="showTuinOverzicht()" class="menu-btn">
+        <i class="lucide lucide-layers"></i>
+        <span>Tuin overzicht</span>
+    </button>
+
+    <button onclick="showPlantenInfo()" class="menu-btn">
+        <i class="lucide lucide-info"></i>
+        <span>Planten info</span>
+    </button>
+
+    <button onclick="showSettings()" class="menu-btn">
+        <i class="lucide lucide-settings"></i>
+        <span>Instellingen</span>
+    </button>
+
+</div>
+
+
 <div id="garden-grid"></div>
 
 <!-- Plant info modal -->
