@@ -8,14 +8,16 @@
 </head>
 <body>
 
-    <h1 class="title">Tuin App</h1>
+    <h1 class="title">🌿 Tuin App 🌿</h1>
 
-    <!-- Vak selectie -->
+    <!-- Vak selectie & naam aanpassen -->
     <div class="vak-select-container">
-        <label for="vak-select-add">Kies een vak:</label>
+        <label for="vak-select-add">Kies of maak een vak:</label>
         <select id="vak-select-add">
             <option value="">-- Kies een vak --</option>
         </select>
+        <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
+        <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
         <button id="open-plant-select" class="btn-main">Plant toevoegen</button>
     </div>
 
@@ -23,10 +25,12 @@
     <div id="plant-select-modal" class="modal">
         <div class="modal-content">
             <span id="select-close" class="close">&times;</span>
-
             <input type="text" id="plant-search" placeholder="Zoek plant..." class="search-box">
-
             <div id="plant-options" class="plant-options"></div>
+            <h4>Of voeg zelf een plant toe:</h4>
+            <input type="text" id="custom-plant-name" placeholder="Plant naam">
+            <input type="text" id="custom-plant-img" placeholder="Afbeeldings-URL">
+            <button id="add-custom-plant">Toevoegen</button>
         </div>
     </div>
 
