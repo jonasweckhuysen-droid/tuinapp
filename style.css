@@ -87,3 +87,111 @@ h1 {
   transform: scale(1.1);
   border-color: #4CAF50;
 }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f2f7f2;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #2d572c;
+}
+
+#garden-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 150px);
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.vak {
+    background: #d3e4cd;
+    border: 2px solid #8bbf8f;
+    border-radius: 10px;
+    height: 150px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.vak img {
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 5px;
+}
+
+.vaknaam {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background: rgba(255,255,255,0.7);
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* Modals */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    text-align: left;
+}
+
+.modal img {
+    display: block;
+    margin: 10px auto;
+    max-width: 200px;
+    border-radius: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Plant options modal */
+#plant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+#plant-options img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s, border 0.2s;
+}
+
+#plant-options img:hover {
+    transform: scale(1.1);
+    border-color: #4CAF50;
+}
+
