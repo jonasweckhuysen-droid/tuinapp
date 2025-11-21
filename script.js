@@ -32,17 +32,17 @@ window.onclick = (event) => {
 }
 
 // ==================== Fetch Trefle Planten ====================
-async function fetchPlants() {
+async function fetchPlants(page = 1) {
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    const apiUrl = `https://trefle.io/api/v1/plants?token=usr-46Bb6d5A0nMov4n2jw-C8mTAKvtpetDHMwDXlDEr2aA&page=${page}`;
+    
     try {
-        const response = await fetch(`https://trefle.io/api/v1/plants?token=${TREFLE_TOKEN}&page=1`);
+        const response = await fetch(proxyUrl + apiUrl);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        plantsData = data.data.map(plant => ({
-            id: plant.id,
-            name: plant.common_name || plant.scientific_name,
-            scientificName: plant.scientific_name,
-            image: plant.image_url || "images/default.png"
-        }));
-    } catch(err) {
+        console.log("Trefle data:", data);
+        return data;
+    } catch (err) {
         console.error("Fout bij Trefle API:", err);
     }
 }
