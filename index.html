@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/public/manifest.webmanifest" />
-    <link rel="icon" href="/public/icons/icon-192.png" />
-    <meta name="theme-color" content="#1f2937" />
-    <h1 id="app-title" style="text-align:center; display:flex; justify-content:center; align-items:center; gap:10px; font-size:2em; color:#2c7a2c;">
-    <img src="/mnt/data/A_flat,_vector-style_logo_features_a_green_leaf_ce.png" alt="Tuin Logo" style="width:40px; height:40px;">
-    Tuin
-</h1>
+    <title>Tuin</title>
 
+    <!-- Manifest & Theme -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#1f2937">
+
+    <!-- Favicon -->
+    <link rel="icon" href="images/logo-192.png">
 
     <!-- Lucide Icons -->
     <link href="https://cdn.jsdelivr.net/npm/lucide-static@0.255.0/dist/lucide.min.css" rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="images/logo.png">
-
-
 </head>
 <body>
 
-    <!-- ========== Visueel indexmenu ========== -->
+    <!-- ===== App Header ===== -->
+    <header style="text-align:center; display:flex; justify-content:center; align-items:center; gap:10px; font-size:2em; color:#2c7a2c; margin:20px 0;">
+        <img src="images/logo-192.png" alt="Tuin Logo" style="width:40px; height:40px;">
+        Tuin
+    </header>
+
+    <!-- ===== Visueel indexmenu ===== -->
     <div id="index-menu">
         <div class="menu-group">
             <select id="vak-select-add" class="menu-select">
@@ -61,10 +64,10 @@
         </button>
     </div>
 
-    <!-- ========== Tuin grid ========== -->
+    <!-- ===== Tuin grid ===== -->
     <div id="garden-grid"></div>
 
-    <!-- ========== Plant info modal ========== -->
+    <!-- ===== Plant info modal ===== -->
     <div id="plant-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -78,7 +81,7 @@
         </div>
     </div>
 
-    <!-- ========== Plant select modal ========== -->
+    <!-- ===== Plant select modal ===== -->
     <div id="plant-select-modal" class="modal">
         <div class="modal-content">
             <span id="select-close" class="close">&times;</span>
@@ -90,10 +93,12 @@
     <!-- JS -->
     <script src="script.js"></script>
     <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/public/sw.js");
-  }
-</script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js")
+          .then(() => console.log("Service Worker geregistreerd"))
+          .catch((err) => console.error("Service Worker registratie mislukt:", err));
+      }
+    </script>
 
 </body>
 </html>
