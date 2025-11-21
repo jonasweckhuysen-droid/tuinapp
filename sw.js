@@ -1,10 +1,10 @@
 const CACHE_NAME = "tuinapp-cache-v1";
 const ASSETS_TO_CACHE = [
-  "/index.html",
-  "/style.css",
-  "/script.js",
-  "/images/logo-192.png",
-  "/images/logo-512.png"
+  "index.html",
+  "style.css",
+  "script.js",
+  "images/logo-192.png",
+  "images/logo-512.png"
 ];
 
 self.addEventListener("install", (event) => {
