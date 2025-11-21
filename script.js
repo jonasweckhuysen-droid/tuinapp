@@ -76,6 +76,7 @@ async function fetchPlantDetails(plantId) {
 
 // ==================== Drag & Drop ====================
 let draggedPlant = null;
+
 function makeDraggable(img, plantId) {
     img.draggable = true;
     img.dataset.plantId = plantId;
@@ -91,12 +92,17 @@ function addDragDrop(vak) {
         if (!draggedPlant) return;
 
         const sourceVak = draggedPlant.parentElement;
-        const existingImg = vak.querySelector("img");
-        if(existingImg) existingImg.remove();
 
+        // Voeg plant toe in nieuwe vak
         vak.appendChild(draggedPlant);
-        vak.dataset.plantId = draggedPlant.dataset.plantId;
-        sourceVak.dataset.plantId = null;
+        if(!vak.planten) vak.planten = [];
+        vak.planten.push({id: draggedPlant.dataset.plantId, imageURL: draggedPlant.src});
+
+        // Verwijder uit oude vak
+        if(sourceVak && sourceVak.planten) {
+            sourceVak.planten = sourceVak.planten.filter(p => p.imageURL !== draggedPlant.src);
+        }
+
         draggedPlant = null;
     });
 }
@@ -106,7 +112,7 @@ function buildGardenGrid() {
     for (let i = 1; i <= vakkenAantal; i++) {
         const vak = document.createElement("div");
         vak.classList.add("vak");
-        vak.dataset.plantId = null;
+        vak.planten = []; // array voor meerdere planten
 
         const vaknaam = document.createElement("span");
         vaknaam.classList.add("vaknaam");
@@ -122,28 +128,10 @@ function buildGardenGrid() {
         }
         vak.appendChild(vaknaam);
 
-        vak.addEventListener("click", async () => {
-            if (!vak.dataset.plantId) {
-                currentVak = vak;
-                openPlantSelect();
-                selectModal.style.display = "block";
-            } else {
-                const plantId = vak.dataset.plantId;
-                const plant = plantsData.find(p => p.id == plantId);
-                if(!plant) return;
-
-                const details = await fetchPlantDetails(plantId);
-
-                plantName.textContent = plant.name;
-                plantScientific.textContent = plant.scientificName;
-                plantFertilization.textContent = details.fertilization;
-                plantMaintenance.textContent = details.maintenance;
-                plantLight.textContent = details.light;
-                plantWater.textContent = details.water;
-                plantImage.src = plant.image;
-
-                plantModal.style.display = "block";
-            }
+        vak.addEventListener("click", () => {
+            currentVak = vak;
+            openPlantSelect();
+            selectModal.style.display = "block";
         });
 
         addDragDrop(vak);
@@ -153,6 +141,7 @@ function buildGardenGrid() {
 
 // ==================== Plant selectiemodal ====================
 function openPlantSelect() {
+    if(!currentVak) return;
     plantOptionsDiv.innerHTML = "";
     plantsData.forEach(plant => {
         const img = document.createElement("img");
@@ -161,16 +150,34 @@ function openPlantSelect() {
         makeDraggable(img, plant.id);
 
         img.onclick = () => {
-            currentVak.dataset.plantId = plant.id;
-            const existingImg = currentVak.querySelector("img");
-            if(existingImg) existingImg.src = plant.image;
-            else currentVak.appendChild(img.cloneNode(true));
+            // Voeg plant toe aan vak array
+            currentVak.planten.push({id: plant.id, imageURL: plant.image});
 
-            const addedImg = currentVak.querySelector("img");
-            makeDraggable(addedImg, plant.id);
+            // Maak afbeelding in vak
+            const plantImg = document.createElement("img");
+            plantImg.src = plant.image;
+            plantImg.dataset.plantId = plant.id;
 
+            makeDraggable(plantImg, plant.id);
+
+            // Klik op plant afbeelding voor info modal
+            plantImg.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const details = await fetchPlantDetails(plant.id);
+                plantName.textContent = plant.name;
+                plantScientific.textContent = plant.scientificName;
+                plantFertilization.textContent = details.fertilization;
+                plantMaintenance.textContent = details.maintenance;
+                plantLight.textContent = details.light;
+                plantWater.textContent = details.water;
+                plantImage.src = plant.image;
+                plantModal.style.display = "block";
+            });
+
+            currentVak.appendChild(plantImg);
             selectModal.style.display = "none";
         };
+
         plantOptionsDiv.appendChild(img);
     });
 }
