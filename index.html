@@ -93,12 +93,13 @@
     <!-- JS -->
     <script src="script.js"></script>
     <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("sw.js")
-          .then(() => console.log("Service Worker geregistreerd"))
-          .catch((err) => console.error("Service Worker registratie mislukt:", err));
-      }
-    </script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+      .then(() => console.log("Service Worker geregistreerd"))
+      .catch((err) => console.error("Service Worker registratie mislukt:", err));
+  }
+</script>
+
 
 </body>
 </html>
