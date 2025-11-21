@@ -76,6 +76,8 @@ function renderGarden() {
     const gardenGrid = document.getElementById("garden-grid");
     gardenGrid.innerHTML = "";
 
+    const icons = ["🌸","🍃","☀️","🌼","🌱"];
+
     Object.keys(vakkenData).forEach(vak => {
         const vakDiv = document.createElement("div");
         vakDiv.className = "vak";
@@ -94,11 +96,12 @@ function renderGarden() {
             img.alt = plant.name;
 
             const nameSpan = document.createElement("span");
-            nameSpan.textContent = plant.name;
+            // Kies een random icoontje
+            const icon = icons[Math.floor(Math.random() * icons.length)];
+            nameSpan.textContent = `${icon} ${plant.name}`;
 
             plantDiv.appendChild(img);
             plantDiv.appendChild(nameSpan);
-
             vakDiv.appendChild(plantDiv);
         });
 
