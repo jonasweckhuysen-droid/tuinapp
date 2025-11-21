@@ -187,6 +187,60 @@ async function init() {
     await fetchPlants();
     buildGardenGrid();
 }
+// ==================================================
+// Menu functies
+// ==================================================
+
+// Planten toevoegen vanuit menu
+function openPlantSelectForMenu() {
+    // Vraag gebruiker eerst om vak te kiezen
+    const vakIndex = prompt(`Selecteer vaknummer (1-${vakkenAantal}) om een plant toe te voegen:`);
+    const vak = gardenGrid.children[vakIndex-1];
+    if(!vak) return alert("Ongeldig vaknummer.");
+    currentVak = vak;
+    openPlantSelect();
+    selectModal.style.display = "block";
+}
+
+// Vaknaam aanpassen vanuit menu
+function renameVakForMenu() {
+    const vakIndex = prompt(`Selecteer vaknummer (1-${vakkenAantal}) om naam aan te passen:`);
+    const vak = gardenGrid.children[vakIndex-1];
+    if(!vak) return alert("Ongeldig vaknummer.");
+
+    const vaknaam = vak.querySelector(".vaknaam");
+    const newName = prompt("Nieuwe naam voor dit vak:", vaknaam.textContent);
+    if(newName) {
+        vaknaam.textContent = newName;
+        savedNames[`vak${vakIndex}`] = newName;
+        localStorage.setItem("vakNames", JSON.stringify(savedNames));
+    }
+}
+
+// Scroll naar tuin-grid (Tuin overzicht)
+function scrollToTuin() {
+    gardenGrid.scrollIntoView({behavior: "smooth"});
+}
+
+// Planten info vanuit menu
+function showPlantenInfoForMenu() {
+    const vakIndex = prompt(`Selecteer vaknummer (1-${vakkenAantal}) om planten info te bekijken:`);
+    const vak = gardenGrid.children[vakIndex-1];
+    if(!vak) return alert("Ongeldig vaknummer.");
+    if(!vak.planten || vak.planten.length === 0) return alert("Geen planten in dit vak.");
+
+    let infoText = "Planten in dit vak:\n";
+    vak.planten.forEach((p, idx) => {
+        const plant = plantsData.find(pl => pl.id == p.id);
+        infoText += `${idx+1}. ${plant ? plant.name : "Onbekende plant"}\n`;
+    });
+    alert(infoText);
+}
+
+// Instellingen placeholder
+function showSettingsForMenu() {
+    alert("Instellingen functie kan hier later uitgebreid worden.");
+}
 
 // Start de app
 init();
