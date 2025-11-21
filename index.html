@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/public/manifest.webmanifest" />
+    <link rel="icon" href="/public/icons/icon-192.png" />
+    <meta name="theme-color" content="#1f2937" />
     <h1 id="app-title" style="text-align:center; display:flex; justify-content:center; align-items:center; gap:10px; font-size:2em; color:#2c7a2c;">
     <img src="/mnt/data/A_flat,_vector-style_logo_features_a_green_leaf_ce.png" alt="Tuin Logo" style="width:40px; height:40px;">
     Tuin
@@ -86,5 +89,11 @@
 
     <!-- JS -->
     <script src="script.js"></script>
+    <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/public/sw.js");
+  }
+</script>
+
 </body>
 </html>
