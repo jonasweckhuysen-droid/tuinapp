@@ -73,3 +73,17 @@ h1 {
   font-weight: bold;
   cursor: pointer;
 }
+#plant-options img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s, border 0.2s;
+}
+
+#plant-options img:hover {
+  transform: scale(1.1);
+  border-color: #4CAF50;
+}
