@@ -9,7 +9,7 @@ async function fetchPlants(query = "") {
         let plants = data.data || [];
 
         if (query) {
-            plants = plants.filter(p => 
+            plants = plants.filter(p =>
                 (p.common_name && p.common_name.toLowerCase().includes(query.toLowerCase())) ||
                 (p.scientific_name && p.scientific_name.toLowerCase().includes(query.toLowerCase()))
             );
@@ -25,7 +25,7 @@ async function fetchPlants(query = "") {
 // ===== Init vak select =====
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
-    const vakken = ["Voortuin", "Achtertuin", "Serre"]; // voorbeeldvakken
+    const vakken = ["Voortuin", "Achtertuin", "Serre"];
     vakken.forEach(vak => {
         const option = document.createElement("option");
         option.value = vak;
@@ -47,11 +47,32 @@ async function openPlantSelectForDropdown() {
     plantOptionsContainer.innerHTML = "";
 
     const plants = await fetchPlants();
+    if (plants.length === 0) {
+        plantOptionsContainer.textContent = "Geen planten gevonden.";
+        return;
+    }
+
     plants.forEach(p => {
         const div = document.createElement("div");
         div.className = "plant-option";
-        div.textContent = p.common_name || p.scientific_name;
-        div.onclick = () => addPlantToVak(selectedVak, p);
+
+        // Voeg afbeelding toe indien beschikbaar
+        const img = document.createElement("img");
+        img.src = p.image_url || "images/logo-192.png";
+        img.alt = p.common_name || p.scientific_name;
+
+        // Klik event: plant toevoegen
+        img.onclick = () => addPlantToVak(selectedVak, p);
+
+        // Voeg naam onder de afbeelding toe
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = p.common_name || p.scientific_name;
+        nameDiv.style.textAlign = "center";
+        nameDiv.style.fontSize = "12px";
+        nameDiv.style.marginTop = "4px";
+
+        div.appendChild(img);
+        div.appendChild(nameDiv);
         plantOptionsContainer.appendChild(div);
     });
 
@@ -65,11 +86,28 @@ document.getElementById("plant-search").addEventListener("input", async (e) => {
     plantOptionsContainer.innerHTML = "";
 
     const plants = await fetchPlants(query);
+    if (plants.length === 0) {
+        plantOptionsContainer.textContent = "Geen planten gevonden.";
+        return;
+    }
+
     plants.forEach(p => {
         const div = document.createElement("div");
         div.className = "plant-option";
-        div.textContent = p.common_name || p.scientific_name;
-        div.onclick = () => addPlantToVak(document.getElementById("vak-select-add").value, p);
+
+        const img = document.createElement("img");
+        img.src = p.image_url || "images/logo-192.png";
+        img.alt = p.common_name || p.scientific_name;
+        img.onclick = () => addPlantToVak(document.getElementById("vak-select-add").value, p);
+
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = p.common_name || p.scientific_name;
+        nameDiv.style.textAlign = "center";
+        nameDiv.style.fontSize = "12px";
+        nameDiv.style.marginTop = "4px";
+
+        div.appendChild(img);
+        div.appendChild(nameDiv);
         plantOptionsContainer.appendChild(div);
     });
 });
@@ -77,11 +115,25 @@ document.getElementById("plant-search").addEventListener("input", async (e) => {
 // ===== Plant toevoegen aan vak =====
 function addPlantToVak(vak, plant) {
     const gardenGrid = document.getElementById("garden-grid");
+
     const plantDiv = document.createElement("div");
-    plantDiv.className = "garden-plant";
-    plantDiv.textContent = `${plant.common_name || plant.scientific_name} (${vak})`;
+    plantDiv.className = "vak";
+
+    // Voeg plantnaam toe
+    const nameDiv = document.createElement("div");
+    nameDiv.className = "vaknaam";
+    nameDiv.textContent = `${plant.common_name || plant.scientific_name} (${vak})`;
+
+    // Voeg afbeelding toe
+    const img = document.createElement("img");
+    img.src = plant.image_url || "images/logo-192.png";
+    img.alt = plant.common_name || plant.scientific_name;
+
+    plantDiv.appendChild(img);
+    plantDiv.appendChild(nameDiv);
     gardenGrid.appendChild(plantDiv);
 
+    // Sluit modal
     document.getElementById("plant-select-modal").style.display = "none";
 }
 
