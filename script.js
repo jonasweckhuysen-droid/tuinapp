@@ -1,4 +1,3 @@
-// Voorbeeld: 8 vakken
 const vakkenAantal = 8;
 const gardenGrid = document.getElementById('garden-grid');
 let plantsData = [
@@ -20,7 +19,7 @@ let plantsData = [
   }
 ];
 
-// Modal elementen
+// Modal
 const modal = document.getElementById("plant-modal");
 const spanClose = document.getElementsByClassName("close")[0];
 const plantName = document.getElementById("plant-name");
@@ -29,29 +28,46 @@ const plantFertilization = document.getElementById("plant-fertilization");
 const plantMaintenance = document.getElementById("plant-maintenance");
 const plantImage = document.getElementById("plant-image");
 
-// Sluit modal
 spanClose.onclick = () => modal.style.display = "none";
-window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
+window.onclick = (event) => { if(event.target == modal) modal.style.display = "none"; }
+
+const savedNames = JSON.parse(localStorage.getItem("vakNames")) || {};
 
 // Vak grid opbouwen
 for (let i = 1; i <= vakkenAantal; i++) {
   const vak = document.createElement("div");
   vak.classList.add("vak");
-  vak.textContent = `Vak ${i}`;
   vak.dataset.plantId = null;
+
+  // Vaknaam
+  const vaknaam = document.createElement("span");
+  vaknaam.classList.add("vaknaam");
+  vaknaam.textContent = savedNames[`vak${i}`] || `Vak ${i}`;
+  vaknaam.onclick = (e) => {
+    e.stopPropagation();
+    const newName = prompt("Nieuwe naam voor dit vak:", vaknaam.textContent);
+    if(newName) {
+      vaknaam.textContent = newName;
+      savedNames[`vak${i}`] = newName;
+      localStorage.setItem("vakNames", JSON.stringify(savedNames));
+    }
+  }
+
+  vak.appendChild(vaknaam);
 
   vak.addEventListener("click", () => {
     if (!vak.dataset.plantId) {
-      // Planten kiezen
       const plantOptions = plantsData.map(p => `${p.id}: ${p.name}`).join("\n");
       const choice = prompt(`Kies een plant:\n${plantOptions}`);
       const plant = plantsData.find(p => p.id == choice);
       if (plant) {
         vak.dataset.plantId = plant.id;
-        vak.textContent = plant.name;
+        // Afbeelding toevoegen
+        const img = document.createElement("img");
+        img.src = plant.image;
+        vak.appendChild(img);
       }
     } else {
-      // Plant info tonen
       const plant = plantsData.find(p => p.id == vak.dataset.plantId);
       plantName.textContent = plant.name;
       plantScientific.textContent = plant.scientificName;
