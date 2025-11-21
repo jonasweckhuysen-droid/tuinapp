@@ -32,20 +32,40 @@ window.onclick = (event) => {
 }
 
 // ==================== Fetch Trefle Planten ====================
+// Functie om planten op te halen via je eigen backend
 async function fetchPlants(page = 1) {
-    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-    const apiUrl = `https://trefle.io/api/v1/plants?token=usr-46Bb6d5A0nMov4n2jw-C8mTAKvtpetDHMwDXlDEr2aA&page=${page}`;
-    
+    const backendUrl = `https://tuin-backend.onrender.com/plants?page=${page}`;
+
     try {
-        const response = await fetch(proxyUrl + apiUrl);
+        const response = await fetch(backendUrl);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        console.log("Trefle data:", data);
+        console.log("Trefle data via backend:", data);
         return data;
     } catch (err) {
-        console.error("Fout bij Trefle API:", err);
+        console.error("Fout bij backend fetch:", err);
+        return [];
     }
 }
+
+// Init functie om de app te starten
+async function init() {
+    const plantsData = await fetchPlants();
+    
+    // Hier voeg je code toe om planten in je UI te tonen
+    const plantOptions = document.getElementById("plant-options");
+    if (plantsData.data) {
+        plantsData.data.forEach(plant => {
+            const div = document.createElement("div");
+            div.className = "plant-option";
+            div.textContent = plant.common_name || plant.scientific_name;
+            plantOptions.appendChild(div);
+        });
+    }
+}
+
+// Start de app
+document.addEventListener("DOMContentLoaded", init);
 
 // ==================== Fetch Trefle Plant Details ====================
 async function fetchPlantDetails(plantId) {
