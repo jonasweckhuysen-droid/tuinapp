@@ -81,14 +81,22 @@ function createPlantOption(plant, vak) {
     const div = document.createElement("div");
     div.className = "plant-option";
 
+    // FIX: juiste URL
+    const imgUrl =
+        (plant.default_image && plant.default_image.thumbnail) ||
+        "images/logo-192.png";
+
     const img = document.createElement("img");
-    img.src = plant.image_url || "images/logo-192.png";
+    img.src = imgUrl;
     img.alt = plant.common_name || plant.scientific_name;
 
     img.onclick = () => addPlantToVak(vak, plant);
 
     const nameDiv = document.createElement("div");
-    nameDiv.textContent = plant.common_name || plant.scientific_name;
+    nameDiv.textContent =
+        plant.common_name && plant.common_name.trim() !== ""
+            ? plant.common_name
+            : plant.scientific_name;
     nameDiv.className = "plant-name";
 
     div.appendChild(img);
@@ -102,15 +110,16 @@ function createPlantOption(plant, vak) {
 document.getElementById("plant-search").addEventListener("input", async e => {
     const query = e.target.value;
     const selectedVak = document.getElementById("vak-select-add").value;
-    const plantOptionsContainer = document.getElementById("plant-options");
-    plantOptionsContainer.innerHTML = "Zoeken...";
+    const container = document.getElementById("plant-options");
+
+    container.innerHTML = "Zoeken...";
 
     const plants = await fetchPlants(query);
 
-    plantOptionsContainer.innerHTML = "";
+    container.innerHTML = "";
 
     if (plants.length === 0) {
-        plantOptionsContainer.textContent = "Geen planten gevonden.";
+        container.textContent = "Geen planten gevonden.";
         return;
     }
 
@@ -126,12 +135,17 @@ function addPlantToVak(vak, plant) {
     const plantDiv = document.createElement("div");
     plantDiv.className = "vak";
 
+    const imgUrl =
+        (plant.default_image && plant.default_image.thumbnail) ||
+        "images/logo-192.png";
+
     const img = document.createElement("img");
-    img.src = plant.image_url || "images/logo-192.png";
+    img.src = imgUrl;
 
     const nameDiv = document.createElement("div");
     nameDiv.className = "vaknaam";
-    nameDiv.textContent = `${plant.common_name || plant.scientific_name} (${vak})`;
+    nameDiv.textContent =
+        `${plant.common_name || plant.scientific_name} (${vak})`;
 
     plantDiv.appendChild(img);
     plantDiv.appendChild(nameDiv);
