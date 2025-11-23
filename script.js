@@ -21,21 +21,21 @@ document.getElementById("add-vak-btn").onclick = () => {
     const vakNaam = input.value.trim();
     if (!vakNaam) return;
 
-    if (!vakkenData[vakNaam]) vakkenData[vakNaam] = [];  
+    if (!vakkenData[vakNaam]) vakkenData[vakNaam] = [];
 
-    const vakSelect = document.getElementById("vak-select-add");  
-    const option = document.createElement("option");  
-    option.value = vakNaam;  
-    option.textContent = vakNaam;  
-    vakSelect.appendChild(option);  
-    vakSelect.value = vakNaam;  
+    const vakSelect = document.getElementById("vak-select-add");
+    const option = document.createElement("option");
+    option.value = vakNaam;
+    option.textContent = vakNaam;
+    vakSelect.appendChild(option);
+    vakSelect.value = vakNaam;
 
-    input.value = "";  
+    input.value = "";
     renderGarden();
 };
 
 // ==========================
-// Plant modal
+// Plant select modal openen
 // ==========================
 document.getElementById("open-plant-select").onclick = () => {
     const selectedVak = document.getElementById("vak-select-add").value;
@@ -46,37 +46,61 @@ document.getElementById("open-plant-select").onclick = () => {
     document.getElementById("plant-select-modal").style.display = "block";
 };
 
-// Plant toevoegen (zelf)
-document.getElementById("add-custom-plant").onclick = () => {
-    const name = document.getElementById("custom-plant-name").value.trim();
-    const img = document.getElementById("custom-plant-img").value.trim();
+// ==========================
+// Popup: Custom plant modal openen
+// ==========================
+document.getElementById("open-custom-modal").onclick = () => {
+    document.getElementById("custom-plant-modal").style.display = "block";
+};
+
+// Popups sluiten
+document.getElementById("select-close").onclick = () =>
+    document.getElementById("plant-select-modal").style.display = "none";
+
+document.getElementById("custom-close").onclick = () =>
+    document.getElementById("custom-plant-modal").style.display = "none";
+
+// ==========================
+// Custom plant opslaan
+// ==========================
+document.getElementById("save-custom-plant").onclick = () => {
+    const name = document.getElementById("new-plant-name").value.trim();
+    const scientific = document.getElementById("new-plant-science").value.trim();
+    const info = document.getElementById("new-plant-info").value.trim();
+    const img = document.getElementById("new-plant-img").value.trim();
     const vak = document.getElementById("vak-select-add").value;
+
     if (!name || !vak) {
-        alert("Vul plantnaam en vak in!");
+        alert("Naam en vak zijn verplicht.");
         return;
     }
 
-    vakkenData[vak].push({ name, img: img || "images/logo-192.png" });  
-    renderGarden();  
+    vakkenData[vak].push({
+        name,
+        scientific,
+        info,
+        img: img || "images/logo-192.png"
+    });
 
-    document.getElementById("custom-plant-name").value = "";  
-    document.getElementById("custom-plant-img").value = "";  
-    document.getElementById("plant-select-modal").style.display = "none";
-};
+    // velden leegmaken
+    document.getElementById("new-plant-name").value = "";
+    document.getElementById("new-plant-science").value = "";
+    document.getElementById("new-plant-info").value = "";
+    document.getElementById("new-plant-img").value = "";
 
-// Modal sluiten
-document.getElementById("select-close").onclick = () => {
+    document.getElementById("custom-plant-modal").style.display = "none";
     document.getElementById("plant-select-modal").style.display = "none";
+
+    renderGarden();
 };
 
 // ==========================
-// Draggable & Resizable voor mobiel
+// Draggable & Resizable
 // ==========================
 function makeDraggableResizable(el) {
     el.style.position = "absolute";
-    el.style.touchAction = "none"; // nodig voor touch events
+    el.style.touchAction = "none";
 
-    // Voeg een klein resize-handvat toe
     const handle = document.createElement("div");
     handle.style.width = "15px";
     handle.style.height = "15px";
@@ -88,9 +112,9 @@ function makeDraggableResizable(el) {
     handle.style.borderRadius = "3px";
     el.appendChild(handle);
 
-    // Slepen
     el.addEventListener("touchstart", function(e) {
-        if (e.target === handle) return; // niet slepen als resize
+        if (e.target === handle) return;
+
         let touch = e.touches[0];
         let shiftX = touch.clientX - el.getBoundingClientRect().left;
         let shiftY = touch.clientY - el.getBoundingClientRect().top;
@@ -110,7 +134,6 @@ function makeDraggableResizable(el) {
         }, { once: true });
     });
 
-    // Resize
     handle.addEventListener("touchstart", function(e) {
         e.stopPropagation();
         let startX = e.touches[0].clientX;
@@ -139,48 +162,38 @@ function makeDraggableResizable(el) {
 // Garden renderen
 // ==========================
 function renderGarden() {
-    const gardenGrid = document.getElementById("garden-grid");
-    gardenGrid.innerHTML = "";
+    const grid = document.getElementById("garden-grid");
+    grid.innerHTML = "";
 
-    const icons = ["🌸","🍃","☀️","🌼","🌱"];  
+    const icons = ["🌸","🍃","☀️","🌼","🌱"];
 
-    Object.keys(vakkenData).forEach(vak => {  
-        const vakDiv = document.createElement("div");  
-        vakDiv.className = "vak";  
+    Object.keys(vakkenData).forEach(vak => {
+        const vakDiv = document.createElement("div");
+        vakDiv.className = "vak";
 
-        vakDiv.style.minWidth = "100px";
-        vakDiv.style.minHeight = "100px";
-        vakDiv.style.border = "2px solid #2c7a2c";
-        vakDiv.style.borderRadius = "10px";
-        vakDiv.style.padding = "10px";
-        vakDiv.style.margin = "10px";
-        vakDiv.style.backgroundColor = "#e6f2e6";
+        const vakTitle = document.createElement("div");
+        vakTitle.className = "vak-title";
+        vakTitle.textContent = vak;
+        vakDiv.appendChild(vakTitle);
 
-        const vakTitle = document.createElement("div");  
-        vakTitle.className = "vak-title";  
-        vakTitle.textContent = vak;  
-        vakDiv.appendChild(vakTitle);  
+        vakkenData[vak].forEach(plant => {
+            const div = document.createElement("div");
+            div.className = "plant-item";
 
-        vakkenData[vak].forEach(plant => {  
-            const plantDiv = document.createElement("div");  
-            plantDiv.className = "plant-item";  
+            const img = document.createElement("img");
+            img.src = plant.img;
+            img.alt = plant.name;
 
-            const img = document.createElement("img");  
-            img.src = plant.img;  
-            img.alt = plant.name;  
+            const span = document.createElement("span");
+            const icon = icons[Math.floor(Math.random() * icons.length)];
+            span.textContent = `${icon} ${plant.name}`;
 
-            const nameSpan = document.createElement("span");  
-            const icon = icons[Math.floor(Math.random() * icons.length)];  
-            nameSpan.textContent = `${icon} ${plant.name}`;  
+            div.appendChild(img);
+            div.appendChild(span);
+            vakDiv.appendChild(div);
+        });
 
-            plantDiv.appendChild(img);  
-            plantDiv.appendChild(nameSpan);  
-            vakDiv.appendChild(plantDiv);  
-        });  
-
-        gardenGrid.appendChild(vakDiv);  
-
-        // Maak vak versleepbaar en resizebaar
+        grid.appendChild(vakDiv);
         makeDraggableResizable(vakDiv);
     });
 }
