@@ -16,15 +16,24 @@
 
 <h1 class="title">🌸 Tuin App 🌸</h1>
 
+<!-- Plant toevoegen knop -->
 <div class="vak-select-container">
-    <label for="vak-select-add">Kies of maak een vak:</label>
+    <label for="vak-select-add">Kies een vak:</label>
     <select id="vak-select-add">
         <option value="">-- Kies een vak --</option>
     </select>
-    <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
-    <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
     <button id="open-plant-select" class="btn-main">Plant toevoegen</button>
 </div>
+
+<h2>Jouw tuin</h2>
+
+<!-- Nieuw vak aanmaken onder titel -->
+<div class="vak-select-container">
+    <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
+    <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
+</div>
+
+<div id="garden-grid" class="garden-grid"></div>
 
 <!-- Plant Modal -->
 <div id="plant-select-modal" class="modal">
@@ -43,30 +52,16 @@
     </div>
 </div>
 
-<h2>Jouw tuin</h2>
-<div id="garden-grid" class="garden-grid"></div>
-
-<!-- Install button -->
-<button id="install-btn" class="install-btn hidden">📥 Installeer Tuin App</button>
-
-<!-- Install popup -->
-<div id="install-popup" class="install-popup hidden">
-    <div class="install-box">
-        <h3>🌿 Tuin App installeren?</h3>
-        <p>Zo heb je je tuin altijd bij de hand!</p>
-        <button id="popup-install" class="btn-main">Installeren</button>
-        <button id="popup-cancel" class="btn-cancel">Annuleren</button>
-    </div>
-</div>
-    <!-- Plant info popup -->
+<!-- Plant info popup -->
 <div id="plant-info-modal" class="modal">
     <div class="modal-content">
-        <h2 id="info-title"></h2>
-        <img id="info-img" style="width:100px;height:auto;border-radius:8px;margin:10px 0;">
-        <p><strong>Wetenschappelijke naam:</strong> <span id="info-science"></span></p>
+        <h2 id="info-plant-name"></h2>
+        <img id="info-plant-img" style="width:100px;height:auto;border-radius:8px;margin:10px 0;">
+        <p><strong>Wetenschappelijke naam:</strong> <span id="info-plant-science"></span></p>
         <p><strong>Extra info:</strong></p>
-        <p id="info-extra"></p>
+        <p id="info-plant-info"></p>
         <button id="info-close">Sluiten</button>
+        <button id="edit-plant-btn">Bewerken</button>
     </div>
 </div>
 
@@ -87,8 +82,21 @@
         <label>Foto URL:</label>
         <input id="edit-plant-img" type="text">
 
-        <button id="edit-save">Opslaan</button>
-        <button id="edit-cancel">Annuleren</button>
+        <button id="save-edit-plant">Opslaan</button>
+        <button id="edit-close">Annuleren</button>
+    </div>
+</div>
+
+<!-- Install button -->
+<button id="install-btn" class="install-btn hidden">📥 Installeer Tuin App</button>
+
+<!-- Install popup -->
+<div id="install-popup" class="install-popup hidden">
+    <div class="install-box">
+        <h3>🌿 Tuin App installeren?</h3>
+        <p>Zo heb je je tuin altijd bij de hand!</p>
+        <button id="popup-install" class="btn-main">Installeren</button>
+        <button id="popup-cancel" class="btn-cancel">Annuleren</button>
     </div>
 </div>
 
