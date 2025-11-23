@@ -20,16 +20,39 @@
     <button id="open-plant-select" class="btn-main">Plant toevoegen</button>
 </div>
 
+<!-- MODAL: Plant kiezen of toevoegen -->
 <div id="plant-select-modal" class="modal">
     <div class="modal-content">
         <span id="select-close" class="close">&times;</span>
         <h3>Kies of voeg een plant toe:</h3>
         <input type="text" id="plant-search" placeholder="Zoek plant..." class="search-box">
         <div id="plant-options" class="plant-options"></div>
-        <h4>Of voeg zelf een plant toe:</h4>
-        <input type="text" id="custom-plant-name" placeholder="Plant naam">
-        <input type="text" id="custom-plant-img" placeholder="Afbeeldings-URL">
-        <button id="add-custom-plant">Toevoegen</button>
+
+        <h4>Zelf plant toevoegen</h4>
+        <button id="open-custom-modal" class="btn-main" style="width:100%;">➕ Nieuwe plant toevoegen</button>
+    </div>
+</div>
+
+<!-- MODAL: Nieuwe plant details -->
+<div id="custom-plant-modal" class="modal">
+    <div class="modal-content custom-modal">
+        <span id="custom-close" class="close">&times;</span>
+
+        <h3>🌿 Nieuwe plant toevoegen</h3>
+
+        <label>Naam:</label>
+        <input type="text" id="new-plant-name" placeholder="Bijv. Lavendel">
+
+        <label>Wetenschappelijke naam:</label>
+        <input type="text" id="new-plant-science" placeholder="Bijv. Lavandula angustifolia">
+
+        <label>Extra info:</label>
+        <textarea id="new-plant-info" placeholder="Bijv. geurplant, lokt bijen, onderhoud..." rows="3"></textarea>
+
+        <label>Afbeelding URL (optioneel):</label>
+        <input type="text" id="new-plant-img" placeholder="https://...">
+
+        <button id="save-custom-plant" class="btn-main" style="margin-top:10px;">Plant bewaren</button>
     </div>
 </div>
 
