@@ -1,3 +1,33 @@
+// ==========================
+// LocalStorage functies
+// ==========================
+function saveData() {
+    const positions = {};
+
+    document.querySelectorAll(".vak").forEach(vak => {
+        const name = vak.querySelector(".vak-title").textContent;
+
+        positions[name] = {
+            left: vak.style.left || "0px",
+            top: vak.style.top || "0px",
+            width: vak.style.width || "",
+            height: vak.style.height || ""
+        };
+    });
+
+    localStorage.setItem("vakkenData", JSON.stringify(vakkenData));
+    localStorage.setItem("vakPositions", JSON.stringify(positions));
+}
+
+function loadData() {
+    const savedVakken = localStorage.getItem("vakkenData");
+    const savedPos = localStorage.getItem("vakPositions");
+
+    if (savedVakken) vakkenData = JSON.parse(savedVakken);
+
+    return savedPos ? JSON.parse(savedPos) : {};
+}
+
 // =====================================
 // VAKKEN
 // =====================================
@@ -6,8 +36,10 @@ let vakkenData = {};
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
     const defaultVakken = ["Voortuin", "Achtertuin", "Serre"];
+
     defaultVakken.forEach(vak => {
-        vakkenData[vak] = [];
+        if (!vakkenData[vak]) vakkenData[vak] = [];
+
         const option = document.createElement("option");
         option.value = vak;
         option.textContent = vak;
@@ -31,7 +63,8 @@ document.getElementById("add-vak-btn").onclick = () => {
     vakSelect.value = vakNaam;
 
     input.value = "";
-    renderGarden();
+    renderGarden(loadData());
+    saveData();
 };
 
 // =====================================
@@ -39,14 +72,11 @@ document.getElementById("add-vak-btn").onclick = () => {
 // =====================================
 document.getElementById("open-plant-select").onclick = () => {
     const vak = document.getElementById("vak-select-add").value;
-    if (!vak) {
-        alert("Kies eerst een vak!");
-        return;
-    }
+    if (!vak) return alert("Kies eerst een vak!");
+
     document.getElementById("plant-select-modal").style.display = "block";
 };
 
-// Sluiten
 document.getElementById("select-close").onclick = () => {
     document.getElementById("plant-select-modal").style.display = "none";
 };
@@ -59,10 +89,7 @@ document.getElementById("add-new-plant").onclick = () => {
     const info = document.getElementById("new-plant-info").value.trim();
     const img = document.getElementById("new-plant-img").value.trim();
 
-    if (!name) {
-        alert("Naam is verplicht");
-        return;
-    }
+    if (!name) return alert("Naam is verplicht");
 
     vakkenData[vak].push({
         name,
@@ -71,13 +98,16 @@ document.getElementById("add-new-plant").onclick = () => {
         img: img || "images/logo-192.png"
     });
 
-    renderGarden();
-
     document.getElementById("plant-select-modal").style.display = "none";
+
+    // velden leegmaken
     document.getElementById("new-plant-name").value = "";
     document.getElementById("new-plant-science").value = "";
     document.getElementById("new-plant-info").value = "";
     document.getElementById("new-plant-img").value = "";
+
+    renderGarden(loadData());
+    saveData();
 };
 
 // =====================================
@@ -101,9 +131,11 @@ function makeDraggableResizable(el) {
     // Drag
     el.addEventListener("touchstart", function(e) {
         if (e.target === handle) return;
+
         const touch = e.touches[0];
-        let shiftX = touch.clientX - el.getBoundingClientRect().left;
-        let shiftY = touch.clientY - el.getBoundingClientRect().top;
+        const rect = el.getBoundingClientRect();
+        let shiftX = touch.clientX - rect.left;
+        let shiftY = touch.clientY - rect.top;
 
         function moveAt(touch) {
             el.style.left = touch.clientX - shiftX + "px";
@@ -117,6 +149,7 @@ function makeDraggableResizable(el) {
         document.addEventListener("touchmove", onTouchMove);
         document.addEventListener("touchend", () => {
             document.removeEventListener("touchmove", onTouchMove);
+            saveData();
         }, { once: true });
     });
 
@@ -138,6 +171,7 @@ function makeDraggableResizable(el) {
         function stopResize() {
             document.removeEventListener("touchmove", resizeMove);
             document.removeEventListener("touchend", stopResize);
+            saveData();
         }
 
         document.addEventListener("touchmove", resizeMove);
@@ -145,10 +179,10 @@ function makeDraggableResizable(el) {
     });
 }
 
-// =====================================
+// ==========================
 // RENDEREN
-// =====================================
-function renderGarden() {
+// ==========================
+function renderGarden(savedPositions = {}) {
     const gardenGrid = document.getElementById("garden-grid");
     gardenGrid.innerHTML = "";
 
@@ -161,6 +195,7 @@ function renderGarden() {
         title.textContent = vak;
         vakDiv.appendChild(title);
 
+        // planten in dit vak
         vakkenData[vak].forEach(plant => {
             const div = document.createElement("div");
             div.className = "plant-item";
@@ -179,8 +214,18 @@ function renderGarden() {
 
         gardenGrid.appendChild(vakDiv);
         makeDraggableResizable(vakDiv);
+
+        // ✨ POSITIE TERUG PLAATSEN
+        if (savedPositions[vak]) {
+            vakDiv.style.left = savedPositions[vak].left;
+            vakDiv.style.top = savedPositions[vak].top;
+
+            if (savedPositions[vak].width) vakDiv.style.width = savedPositions[vak].width;
+            if (savedPositions[vak].height) vakDiv.style.height = savedPositions[vak].height;
+        }
     });
 }
+
 
 // =====================================
 // PWA INSTALL
@@ -212,18 +257,30 @@ popupInstall.onclick = async () => {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
-    const result = await deferredPrompt.userChoice;
+    await deferredPrompt.userChoice;
 
     deferredPrompt = null;
     installBtn.classList.add("hidden");
 };
 
 // =====================================
+// INIT
+// =====================================
 document.addEventListener("DOMContentLoaded", () => {
-    initVakSelect();
-    renderGarden();
+    const positions = loadData();
 
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("service-worker.js");
+    const vakSelect = document.getElementById("vak-select-add");
+
+    Object.keys(vakkenData).forEach(vak => {
+        const option = document.createElement("option");
+        option.value = vak;
+        option.textContent = vak;
+        vakSelect.appendChild(option);
+    });
+
+    if (Object.keys(vakkenData).length === 0) {
+        initVakSelect();
     }
+
+    renderGarden(positions);
 });
