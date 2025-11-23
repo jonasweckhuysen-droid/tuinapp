@@ -58,6 +58,39 @@
         <button id="popup-cancel" class="btn-cancel">Annuleren</button>
     </div>
 </div>
+    <!-- Plant info popup -->
+<div id="plant-info-modal" class="modal">
+    <div class="modal-content">
+        <h2 id="info-title"></h2>
+        <img id="info-img" style="width:100px;height:auto;border-radius:8px;margin:10px 0;">
+        <p><strong>Wetenschappelijke naam:</strong> <span id="info-science"></span></p>
+        <p><strong>Extra info:</strong></p>
+        <p id="info-extra"></p>
+        <button id="info-close">Sluiten</button>
+    </div>
+</div>
+
+<!-- Plant bewerken modal -->
+<div id="plant-edit-modal" class="modal">
+    <div class="modal-content">
+        <h2>Plant bewerken</h2>
+
+        <label>Naam:</label>
+        <input id="edit-plant-name" type="text">
+
+        <label>Wetenschappelijke naam:</label>
+        <input id="edit-plant-science" type="text">
+
+        <label>Extra info:</label>
+        <textarea id="edit-plant-info"></textarea>
+
+        <label>Foto URL:</label>
+        <input id="edit-plant-img" type="text">
+
+        <button id="edit-save">Opslaan</button>
+        <button id="edit-cancel">Annuleren</button>
+    </div>
+</div>
 
 <script src="script.js"></script>
 </body>
