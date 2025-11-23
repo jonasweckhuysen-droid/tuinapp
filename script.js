@@ -1,6 +1,8 @@
 // ==========================
 // LocalStorage functies
 // ==========================
+let vakkenData = {};
+
 function saveData() {
     const positions = {};
 
@@ -24,23 +26,18 @@ function loadData() {
     const savedPos = localStorage.getItem("vakPositions");
 
     if (savedVakken) vakkenData = JSON.parse(savedVakken);
-
     return savedPos ? JSON.parse(savedPos) : {};
 }
 
 // =====================================
 // VAKKEN
 // =====================================
-let vakkenData = {};
-
-// Select vullen
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
     const defaultVakken = ["Voortuin", "Achtertuin", "Serre"];
 
     defaultVakken.forEach(vak => {
         if (!vakkenData[vak]) vakkenData[vak] = [];
-
         const option = document.createElement("option");
         option.value = vak;
         option.textContent = vak;
@@ -64,17 +61,16 @@ document.getElementById("add-vak-btn").onclick = () => {
     vakSelect.value = vakNaam;
 
     input.value = "";
-    renderGarden(loadData());
+    renderGarden();
     saveData();
 };
 
 // =====================================
-// PLANT POPUP (Toevoegen)
+// PLANT POPUP
 // =====================================
 document.getElementById("open-plant-select").onclick = () => {
     const vak = document.getElementById("vak-select-add").value;
     if (!vak) return alert("Kies eerst een vak!");
-
     document.getElementById("plant-select-modal").style.display = "block";
 };
 
@@ -90,6 +86,7 @@ document.getElementById("add-new-plant").onclick = () => {
     const info = document.getElementById("new-plant-info").value.trim();
     const img = document.getElementById("new-plant-img").value.trim();
 
+    if (!vak) return alert("Kies eerst een vak!");
     if (!name) return alert("Naam is verplicht");
 
     vakkenData[vak].push({
@@ -106,21 +103,18 @@ document.getElementById("add-new-plant").onclick = () => {
     document.getElementById("new-plant-info").value = "";
     document.getElementById("new-plant-img").value = "";
 
-    renderGarden(loadData());
+    renderGarden();
     saveData();
 };
 
 // =====================================
 // PLANT DETAIL POPUP + EDIT
 // =====================================
-
 const plantInfoModal = document.getElementById("plant-info-modal");
 const plantEditModal = document.getElementById("plant-edit-modal");
-
 let editingVak = null;
 let editingIndex = null;
 
-// Klik op plant opent infovenster
 function openPlantInfo(vak, index) {
     const plant = vakkenData[vak][index];
 
@@ -139,7 +133,6 @@ document.getElementById("info-close").onclick = () => {
     plantInfoModal.style.display = "none";
 };
 
-// Bewerk-knop vanuit info-popup
 document.getElementById("edit-plant-btn").onclick = () => {
     const plant = vakkenData[editingVak][editingIndex];
 
@@ -156,7 +149,6 @@ document.getElementById("edit-close").onclick = () => {
     plantEditModal.style.display = "none";
 };
 
-// Aanpassingen opslaan
 document.getElementById("save-edit-plant").onclick = () => {
     const plant = vakkenData[editingVak][editingIndex];
 
@@ -167,7 +159,7 @@ document.getElementById("save-edit-plant").onclick = () => {
 
     plantEditModal.style.display = "none";
 
-    renderGarden(loadData());
+    renderGarden();
     saveData();
 };
 
@@ -281,7 +273,6 @@ function renderGarden(savedPositions = {}) {
         if (savedPositions[vak]) {
             vakDiv.style.left = savedPositions[vak].left;
             vakDiv.style.top = savedPositions[vak].top;
-
             if (savedPositions[vak].width) vakDiv.style.width = savedPositions[vak].width;
             if (savedPositions[vak].height) vakDiv.style.height = savedPositions[vak].height;
         }
@@ -300,7 +291,6 @@ const popupCancel = document.getElementById("popup-cancel");
 window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
-
     installBtn.classList.remove("hidden");
 });
 
@@ -314,12 +304,9 @@ popupCancel.onclick = () => {
 
 popupInstall.onclick = async () => {
     installPopup.classList.add("hidden");
-
     if (!deferredPrompt) return;
-
     deferredPrompt.prompt();
     await deferredPrompt.userChoice;
-
     deferredPrompt = null;
     installBtn.classList.add("hidden");
 };
@@ -330,17 +317,16 @@ popupInstall.onclick = async () => {
 document.addEventListener("DOMContentLoaded", () => {
     const positions = loadData();
 
-    const vakSelect = document.getElementById("vak-select-add");
-
-    Object.keys(vakkenData).forEach(vak => {
-        const option = document.createElement("option");
-        option.value = vak;
-        option.textContent = vak;
-        vakSelect.appendChild(option);
-    });
-
     if (Object.keys(vakkenData).length === 0) {
         initVakSelect();
+    } else {
+        const vakSelect = document.getElementById("vak-select-add");
+        Object.keys(vakkenData).forEach(vak => {
+            const option = document.createElement("option");
+            option.value = vak;
+            option.textContent = vak;
+            vakSelect.appendChild(option);
+        });
     }
 
     renderGarden(positions);
