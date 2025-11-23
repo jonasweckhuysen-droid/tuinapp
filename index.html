@@ -16,21 +16,21 @@
 
 <h1 class="title">🌸 Tuin App 🌸</h1>
 
-<!-- Plant toevoegen knop -->
+<!-- Nieuw vak aanmaken -->
+<div class="vak-select-container">
+    <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
+    <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
+</div>
+
+<h2>Jouw tuin</h2>
+
+<!-- Vak select + Plant toevoegen knop -->
 <div class="vak-select-container">
     <label for="vak-select-add">Kies een vak:</label>
     <select id="vak-select-add">
         <option value="">-- Kies een vak --</option>
     </select>
     <button id="open-plant-select" class="btn-main">Plant toevoegen</button>
-</div>
-
-<h2>Jouw tuin</h2>
-
-<!-- Nieuw vak aanmaken onder titel -->
-<div class="vak-select-container">
-    <input type="text" id="vak-naam-input" placeholder="Nieuwe vak naam">
-    <button id="add-vak-btn" class="btn-main">Vak toevoegen</button>
 </div>
 
 <div id="garden-grid" class="garden-grid"></div>
