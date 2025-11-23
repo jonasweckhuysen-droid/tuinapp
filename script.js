@@ -70,32 +70,68 @@ document.getElementById("select-close").onclick = () => {
 };
 
 // ==========================
-// Draggable & Resizable functies
+// Draggable + Resizable (mobiel met handvat)
 // ==========================
 function makeDraggable(el) {
     el.style.position = "absolute";
-    el.onmousedown = function(event) {
-        let shiftX = event.clientX - el.getBoundingClientRect().left;
-        let shiftY = event.clientY - el.getBoundingClientRect().top;
 
-        function moveAt(pageX, pageY) {
-            el.style.left = pageX - shiftX + 'px';
-            el.style.top = pageY - shiftY + 'px';
+    // Voeg resize-handvat toe
+    const handle = document.createElement("div");
+    handle.style.width = "15px";
+    handle.style.height = "15px";
+    handle.style.background = "#2c7a2c";
+    handle.style.position = "absolute";
+    handle.style.right = "2px";
+    handle.style.bottom = "2px";
+    handle.style.cursor = "se-resize";
+    handle.style.borderRadius = "3px";
+    el.appendChild(handle);
+
+    // Slepen van vak / plant
+    el.addEventListener("touchstart", function(e) {
+        if (e.target === handle) return; // niet slepen als resize
+        let touch = e.touches[0];
+        let shiftX = touch.clientX - el.getBoundingClientRect().left;
+        let shiftY = touch.clientY - el.getBoundingClientRect().top;
+
+        function moveAt(touch) {
+            el.style.left = touch.clientX - shiftX + "px";
+            el.style.top = touch.clientY - shiftY + "px";
         }
 
-        function onMouseMove(event) {
-            moveAt(event.pageX, event.pageY);
+        function onTouchMove(e) {
+            moveAt(e.touches[0]);
         }
 
-        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener("touchmove", onTouchMove);
+        document.addEventListener("touchend", function() {
+            document.removeEventListener("touchmove", onTouchMove);
+        }, { once: true });
+    });
 
-        el.onmouseup = function() {
-            document.removeEventListener('mousemove', onMouseMove);
-            el.onmouseup = null;
-        };
-    };
+    // Resize via handvat
+    handle.addEventListener("touchstart", function(e) {
+        e.stopPropagation(); // voorkom dat drag start
+        let startX = e.touches[0].clientX;
+        let startY = e.touches[0].clientY;
+        let startWidth = el.offsetWidth;
+        let startHeight = el.offsetHeight;
 
-    el.ondragstart = function() { return false; };
+        function resizeMove(e) {
+            let dx = e.touches[0].clientX - startX;
+            let dy = e.touches[0].clientY - startY;
+            el.style.width = Math.max(50, startWidth + dx) + "px";
+            el.style.height = Math.max(50, startHeight + dy) + "px";
+        }
+
+        function stopResize() {
+            document.removeEventListener("touchmove", resizeMove);
+            document.removeEventListener("touchend", stopResize);
+        }
+
+        document.addEventListener("touchmove", resizeMove);
+        document.addEventListener("touchend", stopResize);
+    });
 }
 
 // ==========================
@@ -110,8 +146,8 @@ function renderGarden() {
     Object.keys(vakkenData).forEach(vak => {
         const vakDiv = document.createElement("div");
         vakDiv.className = "vak";
-        vakDiv.style.position = "relative"; // nodig voor drag
-        vakDiv.style.resize = "both";        // resize
+        vakDiv.style.position = "relative";
+        vakDiv.style.resize = "both";
         vakDiv.style.overflow = "auto";
         vakDiv.style.minWidth = "100px";
         vakDiv.style.minHeight = "100px";
@@ -154,13 +190,13 @@ function renderGarden() {
             plantDiv.appendChild(nameSpan);
             vakDiv.appendChild(plantDiv);
 
-            // Maak plant-items ook draggable
+            // Maak plant-items ook draggable + resizable
             makeDraggable(plantDiv);
         });
 
         gardenGrid.appendChild(vakDiv);
 
-        // Maak vakken draggable
+        // Maak vakken draggable + resizable
         makeDraggable(vakDiv);
     });
 }
