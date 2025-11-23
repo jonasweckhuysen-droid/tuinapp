@@ -18,9 +18,10 @@ body {
     margin-bottom: 20px;
 }
 
-input, select, button {
+input, select, button, textarea {
     padding: 6px;
     font-size: 14px;
+    font-family: inherit;
 }
 
 .btn-main {
@@ -108,16 +109,23 @@ input, select, button {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: #ffffff;
     margin: auto;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 14px;
     width: 90%;
-    max-width: 500px;
+    max-width: 450px;
+    box-shadow: 2px 2px 14px rgba(0,0,0,0.2);
+    border: 2px solid #7ccf89;
+}
+
+.custom-modal {
+    background: #f2fff2;
+    border-color: #4caf50;
 }
 
 .close {
-    color: #aaa;
+    color: #666;
     float: right;
     font-size: 28px;
     cursor: pointer;
@@ -126,7 +134,16 @@ input, select, button {
     color: black;
 }
 
-.plant-item span::before {
-    content: "🌸";
-    margin-right: 3px;
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+    color: #2e8b57;
+}
+
+textarea {
+    resize: none;
+    border-radius: 6px;
+    border: 1px solid #8fcd93;
+    background: #fafffa;
 }
