@@ -178,3 +178,12 @@ input, select, button {
     text-align: center;
     width: 300px;
 }
+.edit-plant-btn {
+    background:#2c7a2c;
+    color:white;
+    border:none;
+    padding:4px 6px;
+    margin-left:6px;
+    border-radius:4px;
+    cursor:pointer;
+}
