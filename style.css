@@ -66,6 +66,7 @@ input:focus, select:focus {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: flex-start;
+    position: relative;
 }
 
 .vak {
@@ -81,6 +82,7 @@ input:focus, select:focus {
     align-items: center;
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     cursor: grab;
+    position: relative; /* Voor resize handle */
 }
 
 .vak:active {
@@ -103,7 +105,7 @@ input:focus, select:focus {
 
 .vak-plants {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 5px;
     width: 100%;
 }
@@ -242,6 +244,20 @@ input:focus, select:focus {
 }
 
 /* -------------------------
+   Resize Handle
+------------------------- */
+.resize-handle {
+    width: 15px;
+    height: 15px;
+    background: #4CAF50;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: se-resize;
+    border-radius: 4px;
+}
+
+/* -------------------------
    Install Button / Popup
 ------------------------- */
 .install-btn {
@@ -295,4 +311,21 @@ input:focus, select:focus {
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 14px;
+}
+
+/* -------------------------
+   Vak Mini-Plant Images
+------------------------- */
+.vak-mini-plant {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: grab;
+    transition: transform 0.2s;
+}
+
+.vak-mini-plant:active {
+    cursor: grabbing;
+    transform: scale(1.1);
 }
