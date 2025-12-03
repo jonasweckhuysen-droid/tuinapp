@@ -276,3 +276,52 @@ input:focus, select:focus {
     border: 1px solid #ccc;
     font-size: 14px;
 }
+body {
+    font-family: "Playfair Display", serif;
+    padding: 15px;
+    background: linear-gradient(to bottom, #f0fff5 0%, #d0f5d0 100%);
+    margin: 0;
+}
+.title { text-align:center; color:#2e8b57; font-size:2.2em; text-shadow:1px 1px 3px #a0dca0; margin-bottom:20px; }
+
+input, select, button {
+    padding: 8px 10px; font-size:14px; border-radius:8px; border:1px solid #ccc; outline:none;
+}
+input:focus, select:focus { border-color:#4CAF50; }
+
+.btn-main {
+    background-color:#4CAF50; color:white; border:none; border-radius:8px; cursor:pointer; transition:0.2s; font-weight:600;
+}
+.btn-main:hover { background-color:#45a049; transform:scale(1.05); }
+
+.garden-grid { display:flex; flex-wrap:wrap; gap:20px; justify-content:flex-start; }
+
+.vak {
+    position:relative;
+    width:180px; min-height:140px;
+    border:2px dashed #2e8b57; border-radius:16px;
+    padding:12px; background:linear-gradient(to bottom,#e6ffe6,#ccffcc);
+    box-shadow:2px 4px 12px rgba(0,0,0,0.15);
+    display:flex; flex-direction:column; align-items:center;
+}
+
+.vak-title { font-weight:bold; margin-bottom:8px; color:#2e8b57; text-align:center; font-size:1.1em; }
+
+.vak-plants { display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%; }
+
+.vak-mini-plant {
+    width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;
+}
+
+.resize-handle { width:15px; height:15px; background:#4CAF50; position:absolute; right:5px; bottom:5px; cursor:se-resize; border-radius:4px; }
+
+.modal { display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.4); padding:20px; }
+.modal-content { background-color:#fefefe; margin:50px auto; padding:20px; border-radius:18px; width:90%; max-width:450px; box-shadow:0 5px 25px rgba(0,0,0,0.25); position:relative; }
+.close { color:#aaa; float:right; font-size:24px; font-weight:bold; cursor:pointer; }
+.close:hover { color:#444; }
+
+.search-box { width:100%; padding:8px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc; font-size:14px; }
+
+#plantsList { list-style:none; padding:0; margin:0; max-height:250px; overflow-y:auto; border:1px solid #ccc; border-radius:8px; background:#fff; }
+#plantsList li { padding:8px 10px; border-bottom:1px solid #eee; cursor:pointer; }
+#plantsList li:hover { background-color:#f0fff0; }
