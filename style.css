@@ -1,3 +1,6 @@
+/* -------------------------
+   Body & Titel
+------------------------- */
 body {
     font-family: "Playfair Display", serif;
     padding: 10px;
@@ -11,20 +14,16 @@ body {
     text-shadow: 1px 1px 2px #a0dca0;
 }
 
-/* Select blok */
-.vak-select-container {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
+/* -------------------------
+   Buttons & Inputs
+------------------------- */
 input, select, button {
     padding: 6px;
     font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 
-/* Buttons */
 .btn-main {
     background-color: #4caf50;
     color: white;
@@ -46,7 +45,9 @@ input, select, button {
     padding: 6px;
 }
 
-/* Garden */
+/* -------------------------
+   Garden / Vakken
+------------------------- */
 .garden-grid {
     display: flex;
     flex-wrap: wrap;
@@ -89,6 +90,9 @@ input, select, button {
     text-align: center;
 }
 
+/* -------------------------
+   Plant List
+------------------------- */
 .plant-item {
     display: flex;
     align-items: center;
@@ -104,90 +108,9 @@ input, select, button {
     border-radius: 5px;
 }
 
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 10;
-    padding-top: 60px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.4);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    cursor: pointer;
-}
-.close:hover {
-    color: black;
-}
-
-/* Install Button */
-.install-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #4caf50;
-    color: white;
-    padding: 12px 18px;
-    border-radius: 50px;
-    border: none;
-    font-size: 16px;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-}
-.install-btn.hidden {
-    display: none;
-}
-
-/* Install Popup */
-.install-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.install-popup.hidden {
-    display: none;
-}
-
-.install-box {
-    background: #e6ffe6;
-    padding: 20px;
-    border-radius: 15px;
-    border: 3px solid #2e8b57;
-    text-align: center;
-    width: 300px;
-}
-.edit-plant-btn {
-    background:#2c7a2c;
-    color:white;
-    border:none;
-    padding:4px 6px;
-    margin-left:6px;
-    border-radius:4px;
-    cursor:pointer;
-}
-/* Algemene styling */
+/* -------------------------
+   Plant Cards
+------------------------- */
 .plant-card {
     background: #fff;
     border-radius: 14px;
@@ -201,6 +124,14 @@ input, select, button {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.plant-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
 }
 
 .plant-icon {
@@ -227,7 +158,9 @@ input, select, button {
     margin-right: 5px;
 }
 
-/* Vakken */
+/* -------------------------
+   Vakken Kaarten
+------------------------- */
 .vak-card {
     padding: 15px;
     background: #f8f8f8;
@@ -242,23 +175,39 @@ input, select, button {
     border-color: #4CAF50;
 }
 
-/* Plant mini-kaart */
+/* -------------------------
+   Plant Mini-kaart
+------------------------- */
 .plant-mini-card {
     padding: 10px;
     background: #fff;
     border-radius: 10px;
     border: 1px solid #ddd;
     cursor: pointer;
+    margin-bottom: 5px;
 }
 
-/* Detail pop-up */
+/* -------------------------
+   Detail Pop-up
+------------------------- */
 .detail-card {
     padding: 20px;
     background: #fff;
     border-radius: 16px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
 }
-/* Icons & tags */
+
+.plant-detail-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+/* -------------------------
+   Types & Specs Tags
+------------------------- */
 .plant-types {
     margin-top: 8px;
     display: flex;
@@ -284,9 +233,14 @@ input, select, button {
     border: 1px solid #ccc;
 }
 
-.detail-types {
+.detail-types, .plant-specs, .detail-specs {
     margin-top: 10px;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.detail-specs p {
+    margin: 4px 0;
 }
