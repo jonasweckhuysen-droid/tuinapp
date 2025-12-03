@@ -79,6 +79,7 @@ async function loadPlantsDatabase() {
         console.error(err);
     }
 }
+plants.sort((a, b) => a.name.localeCompare(b.name, 'nl'));
 
 function populatePlantSelect() {
     const plantList = document.getElementById("plant-select-list");
