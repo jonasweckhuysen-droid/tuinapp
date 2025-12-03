@@ -24,6 +24,7 @@ const specIcons = {
 ------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
     loadPlants();
+    setupVakEvents();
 });
 
 /* -------------------------
@@ -74,7 +75,7 @@ function renderVakken() {
             <p>${vak.plants.length} planten</p>
         `;
 
-        // Voeg resize handle
+        // Resize handle
         const handle = document.createElement("div");
         handle.className = "resize-handle";
         div.appendChild(handle);
@@ -99,6 +100,7 @@ function renderVakken() {
             window.addEventListener("mouseup", stopResize);
         }
 
+        // Planten weergeven
         const plantenContainer = div.querySelector(".vak-plants");
         vak.plants
             .map(pid => plantsData.find(p => p.id === pid))
@@ -166,46 +168,50 @@ function updateVakSelect() {
     });
 }
 
-document.getElementById("add-vak-btn").addEventListener("click", () => {
-    const input = document.getElementById("vak-naam-input");
-    const name = input.value.trim();
-    if (!name) return alert("Vul een naam in.");
-    const id = "vak_" + Date.now();
-    vakken[id] = { name, plants: [] };
-    saveVakken();
-    renderVakken();
-    updateVakSelect();
-    input.value = "";
-});
-
-document.getElementById("vak-select-add").addEventListener("change", (e) => {
-    selectedVakId = e.target.value;
-});
-
 /* -------------------------
-   PLANT MODAL
+   VAK TOEVOEGEN
 ------------------------- */
-document.getElementById("open-plant-select").addEventListener("click", () => {
-    if (!selectedVakId) return alert("Kies eerst een vak.");
-    const list = document.getElementById("plantsList");
-    list.innerHTML = "";
-    plantsData.forEach(p => {
-        const li = document.createElement("li");
-        li.textContent = p.name;
-        li.addEventListener("click", () => {
-            vakken[selectedVakId].plants.push(p.id);
-            saveVakken();
-            renderVakken();
-            document.getElementById("plantSelectModal").style.display = "none";
-        });
-        list.appendChild(li);
+function setupVakEvents() {
+    document.getElementById("add-vak-btn").addEventListener("click", () => {
+        const input = document.getElementById("vak-naam-input");
+        const name = input.value.trim();
+        if (!name) return alert("Vul een naam in.");
+        const id = "vak_" + Date.now();
+        vakken[id] = { name, plants: [] };
+        saveVakken();
+        renderVakken();
+        updateVakSelect();
+        input.value = "";
+        selectedVakId = id;
+        document.getElementById("vak-select-add").value = id;
     });
-    document.getElementById("plantSelectModal").style.display = "block";
-});
 
-document.getElementById("plantSelectClose").addEventListener("click", () => {
-    document.getElementById("plantSelectModal").style.display = "none";
-});
+    document.getElementById("vak-select-add").addEventListener("change", (e) => {
+        selectedVakId = e.target.value;
+    });
+
+    document.getElementById("open-plant-select").addEventListener("click", () => {
+        if (!selectedVakId) return alert("Kies eerst een vak.");
+        const list = document.getElementById("plantsList");
+        list.innerHTML = "";
+        plantsData.forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = p.name;
+            li.addEventListener("click", () => {
+                vakken[selectedVakId].plants.push(p.id);
+                saveVakken();
+                renderVakken();
+                document.getElementById("plantSelectModal").style.display = "none";
+            });
+            list.appendChild(li);
+        });
+        document.getElementById("plantSelectModal").style.display = "block";
+    });
+
+    document.getElementById("plantSelectClose").addEventListener("click", () => {
+        document.getElementById("plantSelectModal").style.display = "none";
+    });
+}
 
 /* -------------------------
    PLANT DETAILS
@@ -244,4 +250,18 @@ function openVak(id) {
 
 function closeVak() {
     document.getElementById("vakModal").style.display = "none";
-        }
+}
+
+/* -------------------------
+   VAK DROP (voor vakken verslepen)
+------------------------- */
+function handleDrop(e) {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData("text/plain");
+    const targetId = e.currentTarget.dataset.vakId;
+    if (!draggedId || draggedId === targetId) return;
+    const container = document.getElementById("vakkenContainer");
+    const draggedElem = document.querySelector(`[data-vak-id="${draggedId}"]`);
+    const targetElem = document.querySelector(`[data-vak-id="${targetId}"]`);
+    container.insertBefore(draggedElem, targetElem.nextSibling);
+}
