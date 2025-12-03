@@ -41,39 +41,90 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* -------------------------
-   PLANTS LADEN
+   PLANTS LADEN EN SORTEREN
 ------------------------- */
 function loadPlants() {
     fetch("plants.json")
         .then(res => res.json())
         .then(data => {
-            plantsData = data.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g,'_') }));
+            plantsData = data
+                .map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g,'_') }))
+                .sort((a,b) => a.name.localeCompare(b.name, 'nl', { sensitivity: 'base' }));
         });
 }
 
 /* -------------------------
-   VAKKEN
+   VAKKEN OPSLAAN
 ------------------------- */
 function saveVakken() {
     localStorage.setItem("vakken", JSON.stringify(vakken));
 }
 
+/* -------------------------
+   VAKKEN RENDEREN (grafisch & drag & drop)
+------------------------- */
 function renderVakken() {
     const container = document.getElementById("vakkenContainer");
     container.innerHTML = "";
+
     Object.keys(vakken).forEach(id => {
         const vak = vakken[id];
         const div = document.createElement("div");
-        div.className = "vak-card";
-        div.onclick = () => openVak(id);
+        div.className = "vak";
+        div.dataset.vakId = id;
+        div.draggable = true;
+
         div.innerHTML = `
-            <h3><i class="fa-solid fa-border-all"></i> ${vak.name}</h3>
-            <p>${vak.plants.length} planten</p>
+            <div class="vak-title">${vak.name}</div>
+            <div class="vak-plants">
+                ${vak.plants.map(pid => {
+                    const plant = plantsData.find(p => p.id === pid);
+                    if (!plant) return "";
+                    return `<div class="plant-mini-card" title="${plant.description}" onclick="showPlantDetails('${plant.id}')">
+                                ${plant.name} (${plant.latin})
+                            </div>`;
+                }).join("")}
+            </div>
         `;
+
+        // Drag & drop events
+        div.addEventListener("dragstart", dragStart);
+        div.addEventListener("dragover", dragOver);
+        div.addEventListener("drop", drop);
+
         container.appendChild(div);
     });
 }
 
+/* -------------------------
+   DRAG & DROP FUNCTIES
+------------------------- */
+let draggedVakId = null;
+
+function dragStart(e) {
+    draggedVakId = this.dataset.vakId;
+}
+
+function dragOver(e) {
+    e.preventDefault();
+}
+
+function drop(e) {
+    e.preventDefault();
+    const targetVakId = this.dataset.vakId;
+    if (draggedVakId && draggedVakId !== targetVakId) {
+        const temp = vakken[draggedVakId];
+        vakken[draggedVakId] = vakken[targetVakId];
+        vakken[targetVakId] = temp;
+        saveVakken();
+        renderVakken();
+        updateVakSelect();
+    }
+}
+
+/* -------------------------
+   UPDATE VAK SELECT
+------------------------- */
 function updateVakSelect() {
     const select = document.getElementById("vak-select-add");
     select.innerHTML = '<option value="">-- Kies een vak --</option>';
@@ -108,7 +159,7 @@ document.getElementById("vak-select-add").addEventListener("change", (e) => {
 });
 
 /* -------------------------
-   PLANT MODAL
+   PLANT MODAL OPEN/SLUIT
 ------------------------- */
 document.getElementById("open-plant-select").addEventListener("click", () => {
     if (!selectedVakId) { alert("Selecteer eerst een vak."); return; }
@@ -126,13 +177,18 @@ document.getElementById("plantSelectClose").addEventListener("click", () => {
 function renderPlantDropdown(filter = "") {
     const list = document.getElementById("plantsList");
     list.innerHTML = "";
+
     plantsData
         .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+        .sort((a,b) => a.name.localeCompare(b.name, 'nl', { sensitivity:'base' }))
         .forEach(plant => {
             const li = document.createElement("li");
-            li.textContent = plant.name;
+            li.innerHTML = `<strong>${plant.name}</strong> (${plant.latin})`;
             li.style.cursor = "pointer";
-            li.onclick = () => { addPlantToVak(plant.id); document.getElementById("plantSelectModal").style.display = "none"; };
+            li.onclick = () => {
+                addPlantToVak(plant.id);
+                document.getElementById("plantSelectModal").style.display = "none";
+            };
             list.appendChild(li);
         });
 }
@@ -150,10 +206,7 @@ document.getElementById("add-new-plant").addEventListener("click", () => {
     const description = document.getElementById("new-plant-info").value.trim();
     const image = document.getElementById("new-plant-img").value.trim() || "images/logo-192.png";
     if (!name) return alert("Vul een plantnaam in.");
-    const newPlant = {
-        id: name.toLowerCase().replace(/\s+/g,'_'),
-        name, latin, description, image, types: [], specs: {}
-    };
+    const newPlant = { id: name.toLowerCase().replace(/\s+/g,'_'), name, latin, description, image, types: [], specs: {} };
     plantsData.push(newPlant);
     renderPlantDropdown();
     document.getElementById("new-plant-name").value = "";
@@ -190,7 +243,8 @@ function openVak(id) {
         if (!plant) return;
         const div = document.createElement("div");
         div.className = "plant-mini-card";
-        div.textContent = plant.name;
+        div.textContent = `${plant.name} (${plant.latin})`;
+        div.title = plant.description;
         div.onclick = () => showPlantDetails(pid);
         list.appendChild(div);
     });
