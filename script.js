@@ -41,28 +41,24 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* -------------------------
-   PLANTS LADEN EN SORTEREN
+   PLANTS LADEN
 ------------------------- */
 function loadPlants() {
     fetch("plants.json")
         .then(res => res.json())
         .then(data => {
-            plantsData = data
-                .map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g,'_') }))
-                .sort((a,b) => a.name.localeCompare(b.name, 'nl', { sensitivity: 'base' }));
+            plantsData = data.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g,'_') }));
+            plantsData.sort((a,b) => a.name.localeCompare(b.name, 'nl', {sensitivity:'base'}));
         });
 }
 
 /* -------------------------
-   VAKKEN OPSLAAN
+   VAKKEN
 ------------------------- */
 function saveVakken() {
     localStorage.setItem("vakken", JSON.stringify(vakken));
 }
 
-/* -------------------------
-   VAKKEN RENDEREN (grafisch & drag & drop)
-------------------------- */
 function renderVakken() {
     const container = document.getElementById("vakkenContainer");
     container.innerHTML = "";
@@ -70,60 +66,92 @@ function renderVakken() {
     Object.keys(vakken).forEach(id => {
         const vak = vakken[id];
         const div = document.createElement("div");
-        div.className = "vak";
+        div.className = "vak-card vak";
         div.dataset.vakId = id;
+
+        // Maak vak versleepbaar
         div.draggable = true;
+        div.addEventListener("dragover", e => e.preventDefault());
+        div.addEventListener("drop", handleDrop);
 
         div.innerHTML = `
-            <div class="vak-title">${vak.name}</div>
-            <div class="vak-plants">
-                ${vak.plants.map(pid => {
-                    const plant = plantsData.find(p => p.id === pid);
-                    if (!plant) return "";
-                    return `<div class="plant-mini-card" title="${plant.description}" onclick="showPlantDetails('${plant.id}')">
-                                ${plant.name} (${plant.latin})
-                            </div>`;
-                }).join("")}
-            </div>
+            <h3 class="vak-title"><i class="fa-solid fa-border-all"></i> ${vak.name}</h3>
+            <div class="vak-planten"></div>
+            <p>${vak.plants.length} planten</p>
         `;
 
-        // Drag & drop events
-        div.addEventListener("dragstart", dragStart);
-        div.addEventListener("dragover", dragOver);
-        div.addEventListener("drop", drop);
+        const plantenContainer = div.querySelector(".vak-planten");
+        vak.plants
+            .map(pid => plantsData.find(p => p.id === pid))
+            .filter(p => p)
+            .sort((a,b) => a.name.localeCompare(b.name, 'nl', {sensitivity:'base'}))
+            .forEach(plant => {
+                const img = document.createElement("img");
+                img.src = plant.image || "images/logo-192.png";
+                img.title = `${plant.name}\n${plant.latin}\n${plant.description}`;
+                img.className = "vak-mini-plant";
+                img.draggable = true;
+                img.dataset.plantId = plant.id;
+
+                // Versleepbare planten
+                img.addEventListener("dragstart", handleDragStart);
+                img.addEventListener("dragover", e => e.preventDefault());
+                img.addEventListener("drop", handlePlantDrop);
+
+                img.addEventListener("click", () => showPlantDetails(plant.id));
+                plantenContainer.appendChild(img);
+            });
+
+        div.addEventListener("click", e => {
+            if(!e.target.classList.contains("vak-mini-plant")) openVak(id);
+        });
 
         container.appendChild(div);
     });
 }
 
 /* -------------------------
-   DRAG & DROP FUNCTIES
+   DRAG & DROP HANDLERS
 ------------------------- */
-let draggedVakId = null;
-
-function dragStart(e) {
-    draggedVakId = this.dataset.vakId;
+let draggedPlantId = null;
+function handleDragStart(e) {
+    draggedPlantId = e.target.dataset.plantId;
 }
 
-function dragOver(e) {
+function handleDrop(e) {
     e.preventDefault();
+    const targetVakId = e.currentTarget.dataset.vakId;
+    if (!draggedPlantId || !targetVakId) return;
+
+    // Verplaats plant naar ander vak
+    Object.keys(vakken).forEach(vakId => {
+        vakken[vakId].plants = vakken[vakId].plants.filter(pid => pid !== draggedPlantId);
+    });
+    vakken[targetVakId].plants.push(draggedPlantId);
+    saveVakken();
+    renderVakken();
+    draggedPlantId = null;
 }
 
-function drop(e) {
+function handlePlantDrop(e) {
     e.preventDefault();
-    const targetVakId = this.dataset.vakId;
-    if (draggedVakId && draggedVakId !== targetVakId) {
-        const temp = vakken[draggedVakId];
-        vakken[draggedVakId] = vakken[targetVakId];
-        vakken[targetVakId] = temp;
-        saveVakken();
-        renderVakken();
-        updateVakSelect();
-    }
+    const targetPlantId = e.currentTarget.dataset.plantId;
+    if (!draggedPlantId || !targetPlantId || draggedPlantId === targetPlantId) return;
+
+    // Wissel planten binnen hetzelfde vak
+    const vakId = selectedVakId;
+    if(!vakId) return;
+    const arr = vakken[vakId].plants;
+    const i1 = arr.indexOf(draggedPlantId);
+    const i2 = arr.indexOf(targetPlantId);
+    [arr[i1], arr[i2]] = [arr[i2], arr[i1]];
+    saveVakken();
+    renderVakken();
+    draggedPlantId = null;
 }
 
 /* -------------------------
-   UPDATE VAK SELECT
+   VAK SELECT DROPDOWN
 ------------------------- */
 function updateVakSelect() {
     const select = document.getElementById("vak-select-add");
@@ -136,9 +164,6 @@ function updateVakSelect() {
     });
 }
 
-/* -------------------------
-   VAK TOEVOEGEN
-------------------------- */
 document.getElementById("add-vak-btn").addEventListener("click", () => {
     const input = document.getElementById("vak-naam-input");
     const name = input.value.trim();
@@ -151,15 +176,12 @@ document.getElementById("add-vak-btn").addEventListener("click", () => {
     input.value = "";
 });
 
-/* -------------------------
-   VAK SELECTEREN
-------------------------- */
 document.getElementById("vak-select-add").addEventListener("change", (e) => {
     selectedVakId = e.target.value;
 });
 
 /* -------------------------
-   PLANT MODAL OPEN/SLUIT
+   PLANT MODAL
 ------------------------- */
 document.getElementById("open-plant-select").addEventListener("click", () => {
     if (!selectedVakId) { alert("Selecteer eerst een vak."); return; }
@@ -180,11 +202,12 @@ function renderPlantDropdown(filter = "") {
 
     plantsData
         .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
-        .sort((a,b) => a.name.localeCompare(b.name, 'nl', { sensitivity:'base' }))
+        .sort((a,b) => a.name.localeCompare(b.name, 'nl', {sensitivity:'base'}))
         .forEach(plant => {
             const li = document.createElement("li");
-            li.innerHTML = `<strong>${plant.name}</strong> (${plant.latin})`;
+            li.textContent = plant.name;
             li.style.cursor = "pointer";
+            li.title = `${plant.latin}\n${plant.description}`;
             li.onclick = () => {
                 addPlantToVak(plant.id);
                 document.getElementById("plantSelectModal").style.display = "none";
@@ -206,8 +229,12 @@ document.getElementById("add-new-plant").addEventListener("click", () => {
     const description = document.getElementById("new-plant-info").value.trim();
     const image = document.getElementById("new-plant-img").value.trim() || "images/logo-192.png";
     if (!name) return alert("Vul een plantnaam in.");
-    const newPlant = { id: name.toLowerCase().replace(/\s+/g,'_'), name, latin, description, image, types: [], specs: {} };
+    const newPlant = {
+        id: name.toLowerCase().replace(/\s+/g,'_'),
+        name, latin, description, image, types: [], specs: {}
+    };
     plantsData.push(newPlant);
+    plantsData.sort((a,b) => a.name.localeCompare(b.name, 'nl', {sensitivity:'base'}));
     renderPlantDropdown();
     document.getElementById("new-plant-name").value = "";
     document.getElementById("new-plant-science").value = "";
@@ -238,16 +265,18 @@ function openVak(id) {
     document.getElementById("vakModalTitle").textContent = vak.name;
     list.innerHTML = "";
 
-    vak.plants.forEach(pid => {
-        const plant = plantsData.find(p => p.id === pid);
-        if (!plant) return;
-        const div = document.createElement("div");
-        div.className = "plant-mini-card";
-        div.textContent = `${plant.name} (${plant.latin})`;
-        div.title = plant.description;
-        div.onclick = () => showPlantDetails(pid);
-        list.appendChild(div);
-    });
+    vak.plants
+        .map(pid => plantsData.find(p => p.id === pid))
+        .filter(p => p)
+        .sort((a,b) => a.name.localeCompare(b.name, 'nl', {sensitivity:'base'}))
+        .forEach(plant => {
+            const div = document.createElement("div");
+            div.className = "plant-mini-card";
+            div.textContent = plant.name;
+            div.title = `${plant.latin}\n${plant.description}`;
+            div.onclick = () => showPlantDetails(plant.id);
+            list.appendChild(div);
+        });
 
     modal.style.display = "block";
 }
