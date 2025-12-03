@@ -6,28 +6,16 @@ let selectedVakId = null;
    ICONEN PER TYPE EN SPEC
 ------------------------- */
 const typeIcons = {
-    zon: "☀️",
-    halfzon: "🌤️",
-    schaduw: "🌑",
-    winterhard: "❄️",
-    vochtig: "💧",
-    droog: "🔥",
-    bodembedekker: "🟦",
-    struik: "🌳",
-    vasteplant: "🌱",
+    zon: "☀️", halfzon: "🌤️", schaduw: "🌑",
+    winterhard: "❄️", vochtig: "💧", droog: "🔥",
+    bodembedekker: "🟦", struik: "🌳", vasteplant: "🌱",
     siergras: "🎋"
 };
 
 const specIcons = {
-    plantgroep: "🪴",
-    bloeikleur: "🌸",
-    standplaats: "☀️",
-    familie: "🌿",
-    bladkleur: "🍃",
-    wintergroen: "❄️",
-    planthoogte: "📏",
-    grondsoort: "🌱",
-    toepassingssuggesties: "🏡",
+    plantgroep: "🪴", bloeikleur: "🌸", standplaats: "☀️",
+    familie: "🌿", bladkleur: "🍃", wintergroen: "❄️",
+    planthoogte: "📏", grondsoort: "🌱", toepassingssuggesties: "🏡",
     vrucht: "🍎"
 };
 
@@ -69,14 +57,18 @@ function renderVakken() {
         div.className = "vak-card vak";
         div.dataset.vakId = id;
 
-        // Maak vak versleepbaar
-        div.draggable = true;
-        div.addEventListener("dragover", e => e.preventDefault());
-        div.addEventListener("drop", handleDrop);
+        // Versleepbaar vak
+        div.style.position = "relative";
+        div.style.display = "flex";
+        div.style.flexDirection = "column";
+        div.style.alignItems = "center";
+
+        makeVakDraggable(div);
+        makeVakResizable(div);
 
         div.innerHTML = `
             <h3 class="vak-title"><i class="fa-solid fa-border-all"></i> ${vak.name}</h3>
-            <div class="vak-planten"></div>
+            <div class="vak-planten" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
             <p>${vak.plants.length} planten</p>
         `;
 
@@ -98,12 +90,15 @@ function renderVakken() {
                 img.addEventListener("dragover", e => e.preventDefault());
                 img.addEventListener("drop", handlePlantDrop);
 
-                img.addEventListener("click", () => showPlantDetails(plant.id));
+                img.addEventListener("click", e => {
+                    e.stopPropagation();
+                    showPlantDetails(plant.id);
+                });
                 plantenContainer.appendChild(img);
             });
 
         div.addEventListener("click", e => {
-            if(!e.target.classList.contains("vak-mini-plant")) openVak(id);
+            if (!e.target.classList.contains("vak-mini-plant")) openVak(id);
         });
 
         container.appendChild(div);
@@ -111,9 +106,10 @@ function renderVakken() {
 }
 
 /* -------------------------
-   DRAG & DROP HANDLERS
+   DRAG & DROP PLANTEN
 ------------------------- */
 let draggedPlantId = null;
+
 function handleDragStart(e) {
     draggedPlantId = e.target.dataset.plantId;
 }
@@ -138,9 +134,8 @@ function handlePlantDrop(e) {
     const targetPlantId = e.currentTarget.dataset.plantId;
     if (!draggedPlantId || !targetPlantId || draggedPlantId === targetPlantId) return;
 
-    // Wissel planten binnen hetzelfde vak
     const vakId = selectedVakId;
-    if(!vakId) return;
+    if (!vakId) return;
     const arr = vakken[vakId].plants;
     const i1 = arr.indexOf(draggedPlantId);
     const i2 = arr.indexOf(targetPlantId);
@@ -148,6 +143,76 @@ function handlePlantDrop(e) {
     saveVakken();
     renderVakken();
     draggedPlantId = null;
+}
+
+/* -------------------------
+   VAK DRAG & RESIZE
+------------------------- */
+function makeVakDraggable(vakDiv) {
+    let isDragging = false, startX, startY, origX, origY;
+
+    vakDiv.addEventListener("pointerdown", e => {
+        if (e.target.classList.contains("resize-handle")) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = vakDiv.offsetLeft;
+        origY = vakDiv.offsetTop;
+        vakDiv.setPointerCapture(e.pointerId);
+    });
+
+    vakDiv.addEventListener("pointermove", e => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        vakDiv.style.left = origX + dx + "px";
+        vakDiv.style.top = origY + dy + "px";
+        vakDiv.style.position = "absolute";
+        vakDiv.style.zIndex = 1000;
+    });
+
+    vakDiv.addEventListener("pointerup", e => {
+        isDragging = false;
+        vakDiv.releasePointerCapture(e.pointerId);
+    });
+}
+
+function makeVakResizable(vakDiv) {
+    const handle = document.createElement("div");
+    handle.className = "resize-handle";
+    handle.style.width = "15px";
+    handle.style.height = "15px";
+    handle.style.background = "#4caf50";
+    handle.style.position = "absolute";
+    handle.style.right = "0";
+    handle.style.bottom = "0";
+    handle.style.cursor = "se-resize";
+    vakDiv.appendChild(handle);
+
+    let isResizing = false, startX, startY, startWidth, startHeight;
+
+    handle.addEventListener("pointerdown", e => {
+        e.stopPropagation();
+        isResizing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = vakDiv.offsetWidth;
+        startHeight = vakDiv.offsetHeight;
+        handle.setPointerCapture(e.pointerId);
+    });
+
+    handle.addEventListener("pointermove", e => {
+        if (!isResizing) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        vakDiv.style.width = startWidth + dx + "px";
+        vakDiv.style.height = startHeight + dy + "px";
+    });
+
+    handle.addEventListener("pointerup", e => {
+        isResizing = false;
+        handle.releasePointerCapture(e.pointerId);
+    });
 }
 
 /* -------------------------
@@ -181,7 +246,7 @@ document.getElementById("vak-select-add").addEventListener("change", (e) => {
 });
 
 /* -------------------------
-   PLANT MODAL
+   PLANT MODAL + DROPDOWN
 ------------------------- */
 document.getElementById("open-plant-select").addEventListener("click", () => {
     if (!selectedVakId) { alert("Selecteer eerst een vak."); return; }
@@ -193,9 +258,6 @@ document.getElementById("plantSelectClose").addEventListener("click", () => {
     document.getElementById("plantSelectModal").style.display = "none";
 });
 
-/* -------------------------
-   PLANT DROPDOWN + ZOEKEN
-------------------------- */
 function renderPlantDropdown(filter = "") {
     const list = document.getElementById("plantsList");
     list.innerHTML = "";
