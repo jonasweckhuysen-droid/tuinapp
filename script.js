@@ -2,6 +2,22 @@ let plantsData = [];
 let vakken = JSON.parse(localStorage.getItem("vakken")) || {};
 let selectedVakId = null;
 
+/* -------------------------
+   ICONEN PER TYPE
+------------------------- */
+const typeIcons = {
+    zon: "☀️",
+    halfschaduw: "🌤️",
+    schaduw: "🌑",
+    winterhard: "❄️",
+    vochtig: "💧",
+    droog: "🔥",
+    bodembedekker: "🟦",
+    struik: "🌳",
+    vasteplant: "🌱",
+    siergras: "🎋"
+};
+
 document.addEventListener("DOMContentLoaded", () => {
     loadPlants();
     renderVakken();
@@ -31,6 +47,15 @@ function renderPlantList() {
     plantsData.forEach(plant => {
         const div = document.createElement("div");
         div.className = "plant-item";
+
+        const typesHTML = plant.types
+            ? `<div class="plant-types">
+                ${plant.types.map(t => `
+                    <span class="type-tag">${typeIcons[t] || "❔"} ${t}</span>
+                `).join("")}
+               </div>`
+            : "";
+
         div.innerHTML = `
             <div class="plant-card">
                 <div class="plant-header">
@@ -41,6 +66,8 @@ function renderPlantList() {
                 <div class="plant-info">
                     <p><i class="fa-solid fa-flask"></i> <strong>Wetenschappelijk:</strong> ${plant.scientific}</p>
                     <p><i class="fa-solid fa-circle-info"></i> <strong>Info:</strong> ${plant.info}</p>
+
+                    ${typesHTML}
                 </div>
 
                 <button class="add-btn" onclick="addPlantToVak('${plant.id}')">
@@ -150,15 +177,27 @@ function showPlantDetails(id) {
     const modal = document.getElementById("plantDetailModal");
     const content = document.getElementById("detailContent");
 
+    const typesHTML = plant.types
+        ? `<div class="detail-types">
+            ${plant.types.map(t => `
+                <span class="type-tag type-large">${typeIcons[t] || "❔"} ${t}</span>
+            `).join("")}
+           </div>`
+        : "";
+
     modal.style.display = "block";
 
     content.innerHTML = `
         <div class="detail-card">
             <h2><i class="fa-solid fa-leaf"></i> ${plant.name}</h2>
 
-            <p><i class="fa-solid fa-flask"></i> <strong>Wetenschappelijke naam:</strong><br>${plant.scientific}</p>
+            <p><i class="fa-solid fa-flask"></i> 
+            <strong>Wetenschappelijke naam:</strong><br>${plant.scientific}</p>
 
-            <p><i class="fa-solid fa-circle-info"></i> <strong>Extra info:</strong><br>${plant.info}</p>
+            <p><i class="fa-solid fa-circle-info"></i> 
+            <strong>Extra info:</strong><br>${plant.info}</p>
+
+            ${typesHTML}
         </div>
     `;
 }
