@@ -1,5 +1,5 @@
 // ==========================
-// LocalStorage functies
+// LOCALSTORAGE FUNCTIES
 // ==========================
 let vakkenData = {};
 
@@ -29,9 +29,9 @@ function loadData() {
     return savedPos ? JSON.parse(savedPos) : {};
 }
 
-// =====================================
+// ==========================
 // VAKKEN
-// =====================================
+// ==========================
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
     const defaultVakken = ["Voortuin", "Achtertuin", "Serre"];
@@ -45,7 +45,6 @@ function initVakSelect() {
     });
 }
 
-// Vak toevoegen
 document.getElementById("add-vak-btn").onclick = () => {
     const input = document.getElementById("vak-naam-input");
     const vakNaam = input.value.trim();
@@ -65,9 +64,57 @@ document.getElementById("add-vak-btn").onclick = () => {
     saveData();
 };
 
-// =====================================
-// PLANT POPUP
-// =====================================
+// ==========================
+// PLANTS.JSON LADEN + SELECT
+// ==========================
+let plantsDatabase = [];
+
+async function loadPlantsDatabase() {
+    try {
+        const response = await fetch("plants.json");
+        if (!response.ok) throw new Error("Kan plants.json niet laden");
+        plantsDatabase = await response.json();
+        populatePlantSelect();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function populatePlantSelect() {
+    const plantList = document.getElementById("plant-select-list");
+    if (!plantList) return;
+
+    plantList.innerHTML = "";
+    plantsDatabase.forEach((plant, index) => {
+        const li = document.createElement("li");
+        li.className = "plant-select-item";
+        li.innerHTML = `<img src="${plant.image}" alt="${plant.name}" width="30" style="margin-right:5px;"> ${plant.name}`;
+        li.onclick = () => addPlantToVak(index);
+        plantList.appendChild(li);
+    });
+}
+
+function addPlantToVak(index) {
+    const vak = document.getElementById("vak-select-add").value;
+    if (!vak) return alert("Kies eerst een vak!");
+    const plant = plantsDatabase[index];
+
+    vakkenData[vak].push({
+        name: plant.name,
+        science: plant.latin || "",
+        info: plant.description || "",
+        img: plant.image || "images/logo-192.png"
+    });
+
+    renderGarden();
+    saveData();
+
+    document.getElementById("plant-select-modal").style.display = "none";
+}
+
+// ==========================
+// PLANT POPUP + NIEUWE PLANT
+// ==========================
 document.getElementById("open-plant-select").onclick = () => {
     const vak = document.getElementById("vak-select-add").value;
     if (!vak) return alert("Kies eerst een vak!");
@@ -78,7 +125,6 @@ document.getElementById("select-close").onclick = () => {
     document.getElementById("plant-select-modal").style.display = "none";
 };
 
-// Nieuwe plant toevoegen
 document.getElementById("add-new-plant").onclick = () => {
     const vak = document.getElementById("vak-select-add").value;
     const name = document.getElementById("new-plant-name").value.trim();
@@ -97,7 +143,6 @@ document.getElementById("add-new-plant").onclick = () => {
     });
 
     document.getElementById("plant-select-modal").style.display = "none";
-
     document.getElementById("new-plant-name").value = "";
     document.getElementById("new-plant-science").value = "";
     document.getElementById("new-plant-info").value = "";
@@ -107,9 +152,9 @@ document.getElementById("add-new-plant").onclick = () => {
     saveData();
 };
 
-// =====================================
+// ==========================
 // PLANT DETAIL POPUP + EDIT
-// =====================================
+// ==========================
 const plantInfoModal = document.getElementById("plant-info-modal");
 const plantEditModal = document.getElementById("plant-edit-modal");
 let editingVak = null;
@@ -163,9 +208,9 @@ document.getElementById("save-edit-plant").onclick = () => {
     saveData();
 };
 
-// =====================================
+// ==========================
 // DRAGGABLE + RESIZABLE
-// =====================================
+// ==========================
 function makeDraggableResizable(el) {
     el.style.position = "absolute";
     el.style.touchAction = "none";
@@ -279,9 +324,9 @@ function renderGarden(savedPositions = {}) {
     });
 }
 
-// =====================================
+// ==========================
 // PWA INSTALL
-// =====================================
+// ==========================
 let deferredPrompt = null;
 const installBtn = document.getElementById("install-btn");
 const installPopup = document.getElementById("install-popup");
@@ -311,10 +356,12 @@ popupInstall.onclick = async () => {
     installBtn.classList.add("hidden");
 };
 
-// =====================================
+// ==========================
 // INIT
-// =====================================
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
+    loadPlantsDatabase(); // laad JSON bij opstart
+
     const positions = loadData();
 
     if (Object.keys(vakkenData).length === 0) {
