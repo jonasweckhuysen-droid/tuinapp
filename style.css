@@ -187,3 +187,106 @@ input, select, button {
     border-radius:4px;
     cursor:pointer;
 }
+/* Algemene styling */
+.plant-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+    font-family: "Georgia", serif;
+}
+
+.plant-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.plant-icon {
+    font-size: 22px;
+    color: #4CAF50;
+}
+
+.plant-info p {
+    margin: 6px 0;
+    font-size: 14px;
+}
+
+.add-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.add-btn i {
+    margin-right: 5px;
+}
+
+/* Vakken */
+.vak-card {
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border: 2px solid #e2e2e2;
+    transition: 0.2s;
+}
+
+.vak-card:hover {
+    border-color: #4CAF50;
+}
+
+/* Plant mini-kaart */
+.plant-mini-card {
+    padding: 10px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+/* Detail pop-up */
+.detail-card {
+    padding: 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+/* Icons & tags */
+.plant-types {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.type-tag {
+    padding: 4px 8px;
+    background: #f1f1f1;
+    border-radius: 8px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #ddd;
+}
+
+.type-large {
+    font-size: 15px;
+    padding: 6px 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+.detail-types {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
