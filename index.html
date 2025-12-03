@@ -73,66 +73,6 @@
     </div>
 </div>
 
-<!-- Install button -->
-<button id="install-btn" class="install-btn hidden">📥 Installeer Tuin App</button>
-
-<!-- Install popup -->
-<div id="install-popup" class="install-popup hidden">
-    <div class="install-box">
-        <h3>🌿 Tuin App installeren?</h3>
-        <p>Zo heb je je tuin altijd bij de hand!</p>
-        <button id="popup-install" class="btn-main">Installeren</button>
-        <button id="popup-cancel" class="btn-cancel">Annuleren</button>
-    </div>
-</div>
-
 <script src="script.js"></script>
-<script>
-    // Koppel add vak button
-    document.getElementById("add-vak-btn").addEventListener("click", () => {
-        const input = document.getElementById("vak-naam-input");
-        const name = input.value.trim();
-        if (name) {
-            const id = "vak_" + Date.now();
-            vakken[id] = { name, plants: [] };
-            saveVakken();
-            renderVakken();
-            input.value = "";
-            updateVakSelect();
-        }
-    });
-
-    // Update vak dropdown
-    function updateVakSelect() {
-        const select = document.getElementById("vak-select-add");
-        select.innerHTML = '<option value="">-- Kies een vak --</option>';
-        Object.keys(vakken).forEach(id => {
-            const option = document.createElement("option");
-            option.value = id;
-            option.textContent = vakken[id].name;
-            select.appendChild(option);
-        });
-    }
-
-    // Zet selectedVakId bij dropdown
-    document.getElementById("vak-select-add").addEventListener("change", (e) => {
-        selectedVakId = e.target.value;
-    });
-
-    // Open plant select modal
-    document.getElementById("open-plant-select").addEventListener("click", () => {
-        if (!selectedVakId) {
-            alert("Selecteer eerst een vak.");
-            return;
-        }
-        document.getElementById("plantSelectModal").style.display = "block";
-    });
-
-    // Close plant select modal
-    document.getElementById("plantSelectClose").addEventListener("click", () => {
-        document.getElementById("plantSelectModal").style.display = "none";
-    });
-</script>
-
 </body>
 </html>
