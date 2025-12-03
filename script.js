@@ -3,11 +3,11 @@ let vakken = JSON.parse(localStorage.getItem("vakken")) || {};
 let selectedVakId = null;
 
 /* -------------------------
-   ICONEN PER TYPE
+   ICONEN PER TYPE EN SPEC
 ------------------------- */
 const typeIcons = {
     zon: "☀️",
-    halfschaduw: "🌤️",
+    halfzon: "🌤️",
     schaduw: "🌑",
     winterhard: "❄️",
     vochtig: "💧",
@@ -18,10 +18,25 @@ const typeIcons = {
     siergras: "🎋"
 };
 
+const specIcons = {
+    plantgroep: "🪴",
+    bloeikleur: "🌸",
+    standplaats: "☀️",
+    familie: "🌿",
+    bladkleur: "🍃",
+    wintergroen: "❄️",
+    planthoogte: "📏",
+    grondsoort: "🌱",
+    toepassingssuggesties: "🏡",
+    vrucht: "🍎"
+};
+
+/* -------------------------
+   INIT
+------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
     loadPlants();
     renderVakken();
-    renderPlantList();
 });
 
 /* -------------------------
@@ -48,10 +63,18 @@ function renderPlantList() {
         const div = document.createElement("div");
         div.className = "plant-item";
 
+        // Types
         const typesHTML = plant.types
             ? `<div class="plant-types">
-                ${plant.types.map(t => `
-                    <span class="type-tag">${typeIcons[t] || "❔"} ${t}</span>
+                ${plant.types.map(t => `<span class="type-tag">${typeIcons[t.toLowerCase()] || "❔"} ${t}</span>`).join("")}
+               </div>`
+            : "";
+
+        // Specs overzicht
+        const specsHTML = plant.specs
+            ? `<div class="plant-specs">
+                ${Object.keys(plant.specs).map(key => `
+                    <p><strong>${specIcons[key] || "❔"} ${key}:</strong> ${plant.specs[key]}</p>
                 `).join("")}
                </div>`
             : "";
@@ -59,15 +82,15 @@ function renderPlantList() {
         div.innerHTML = `
             <div class="plant-card">
                 <div class="plant-header">
-                    <i class="fa-solid fa-leaf plant-icon"></i>
+                    <img src="${plant.image || 'images/logo-192.png'}" alt="${plant.name}" class="plant-img">
                     <h3>${plant.name}</h3>
                 </div>
 
                 <div class="plant-info">
-                    <p><i class="fa-solid fa-flask"></i> <strong>Wetenschappelijk:</strong> ${plant.scientific}</p>
-                    <p><i class="fa-solid fa-circle-info"></i> <strong>Info:</strong> ${plant.info}</p>
-
+                    <p><i class="fa-solid fa-flask"></i> <strong>Wetenschappelijk:</strong> ${plant.latin}</p>
+                    <p><i class="fa-solid fa-circle-info"></i> <strong>Info:</strong> ${plant.description}</p>
                     ${typesHTML}
+                    ${specsHTML}
                 </div>
 
                 <button class="add-btn" onclick="addPlantToVak('${plant.id}')">
@@ -162,8 +185,12 @@ function addPlantToVak(plantId) {
         return;
     }
 
-    vakken[selectedVakId].plants.push(plantId);
-    saveVakken();
+    // Dubbele check
+    if (!vakken[selectedVakId].plants.includes(plantId)) {
+        vakken[selectedVakId].plants.push(plantId);
+        saveVakken();
+    }
+
     openVak(selectedVakId);
 }
 
@@ -177,12 +204,20 @@ function showPlantDetails(id) {
     const modal = document.getElementById("plantDetailModal");
     const content = document.getElementById("detailContent");
 
+    // Types
     const typesHTML = plant.types
         ? `<div class="detail-types">
-            ${plant.types.map(t => `
-                <span class="type-tag type-large">${typeIcons[t] || "❔"} ${t}</span>
+            ${plant.types.map(t => `<span class="type-tag type-large">${typeIcons[t.toLowerCase()] || "❔"} ${t}</span>`).join("")}
+          </div>`
+        : "";
+
+    // Specs
+    const specsHTML = plant.specs
+        ? `<div class="detail-specs">
+            ${Object.keys(plant.specs).map(key => `
+                <p><strong>${specIcons[key] || "❔"} ${key}:</strong> ${plant.specs[key]}</p>
             `).join("")}
-           </div>`
+          </div>`
         : "";
 
     modal.style.display = "block";
@@ -190,14 +225,14 @@ function showPlantDetails(id) {
     content.innerHTML = `
         <div class="detail-card">
             <h2><i class="fa-solid fa-leaf"></i> ${plant.name}</h2>
+            <img src="${plant.image || 'images/logo-192.png'}" class="plant-detail-img">
 
-            <p><i class="fa-solid fa-flask"></i> 
-            <strong>Wetenschappelijke naam:</strong><br>${plant.scientific}</p>
+            <p><i class="fa-solid fa-flask"></i> <strong>Wetenschappelijke naam:</strong><br>${plant.latin}</p>
 
-            <p><i class="fa-solid fa-circle-info"></i> 
-            <strong>Extra info:</strong><br>${plant.info}</p>
+            <p><i class="fa-solid fa-circle-info"></i> <strong>Extra info:</strong><br>${plant.description}</p>
 
             ${typesHTML}
+            ${specsHTML}
         </div>
     `;
 }
