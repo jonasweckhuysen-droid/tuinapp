@@ -34,6 +34,7 @@ function loadData() {
 // ==========================
 function initVakSelect() {
     const vakSelect = document.getElementById("vak-select-add");
+    if (!vakSelect) return;
     const defaultVakken = ["Voortuin", "Achtertuin", "Serre"];
 
     defaultVakken.forEach(vak => {
@@ -45,24 +46,27 @@ function initVakSelect() {
     });
 }
 
-document.getElementById("add-vak-btn").onclick = () => {
-    const input = document.getElementById("vak-naam-input");
-    const vakNaam = input.value.trim();
-    if (!vakNaam) return;
+const addVakBtn = document.getElementById("add-vak-btn");
+if (addVakBtn) {
+    addVakBtn.onclick = () => {
+        const input = document.getElementById("vak-naam-input");
+        const vakNaam = input?.value.trim();
+        if (!vakNaam) return;
 
-    if (!vakkenData[vakNaam]) vakkenData[vakNaam] = [];
+        if (!vakkenData[vakNaam]) vakkenData[vakNaam] = [];
 
-    const vakSelect = document.getElementById("vak-select-add");
-    const option = document.createElement("option");
-    option.value = vakNaam;
-    option.textContent = vakNaam;
-    vakSelect.appendChild(option);
-    vakSelect.value = vakNaam;
+        const vakSelect = document.getElementById("vak-select-add");
+        const option = document.createElement("option");
+        option.value = vakNaam;
+        option.textContent = vakNaam;
+        vakSelect.appendChild(option);
+        vakSelect.value = vakNaam;
 
-    input.value = "";
-    renderGarden();
-    saveData();
-};
+        input.value = "";
+        renderGarden();
+        saveData();
+    };
+}
 
 // ==========================
 // PLANTS.JSON LADEN + SELECT
@@ -72,33 +76,55 @@ let plantsDatabase = [];
 async function loadPlantsDatabase() {
     try {
         const response = await fetch("plants.json");
-        if (!response.ok) throw new Error("Kan plants.json niet laden");
+        if (!response.ok) throw new Error("Kan plants.json niet laden: " + response.status);
         plantsDatabase = await response.json();
+
+        // Sorteer alfabetisch (Nederlandse locale)
+        plantsDatabase.sort((a, b) => a.name.localeCompare(b.name, 'nl'));
+
         populatePlantSelect();
     } catch (err) {
         console.error(err);
     }
 }
-plants.sort((a, b) => a.name.localeCompare(b.name, 'nl'));
 
-function populatePlantSelect() {
+function populatePlantSelect(filter = "") {
     const plantList = document.getElementById("plant-select-list");
     if (!plantList) return;
 
     plantList.innerHTML = "";
+    const q = filter.trim().toLowerCase();
+
     plantsDatabase.forEach((plant, index) => {
+        if (q && !plant.name.toLowerCase().includes(q)) return; // filter
         const li = document.createElement("li");
         li.className = "plant-select-item";
-        li.innerHTML = `<img src="${plant.image}" alt="${plant.name}" width="30" style="margin-right:5px;"> ${plant.name}`;
+        li.style.listStyle = "none";
+        li.style.padding = "8px";
+        li.style.display = "flex";
+        li.style.alignItems = "center";
+        li.style.gap = "8px";
+        li.innerHTML = `<img src="${plant.image}" alt="${plant.name}" width="36" style="border-radius:6px;"> <div style="flex:1">${plant.name}<br><small style="opacity:.7">${plant.latin || ""}</small></div>`;
         li.onclick = () => addPlantToVak(index);
         plantList.appendChild(li);
     });
+
+    if (!plantList.hasChildNodes()) {
+        const empty = document.createElement("div");
+        empty.style.padding = "10px";
+        empty.style.color = "#666";
+        empty.textContent = "Geen planten gevonden.";
+        plantList.appendChild(empty);
+    }
 }
 
 function addPlantToVak(index) {
-    const vak = document.getElementById("vak-select-add").value;
+    const vak = document.getElementById("vak-select-add")?.value;
     if (!vak) return alert("Kies eerst een vak!");
     const plant = plantsDatabase[index];
+    if (!plant) return;
+
+    if (!vakkenData[vak]) vakkenData[vak] = [];
 
     vakkenData[vak].push({
         name: plant.name,
@@ -110,48 +136,72 @@ function addPlantToVak(index) {
     renderGarden();
     saveData();
 
-    document.getElementById("plant-select-modal").style.display = "none";
+    const modal = document.getElementById("plant-select-modal");
+    if (modal) modal.style.display = "none";
+}
+
+// SEARCH input handling (live filter)
+const plantSearchInput = document.getElementById("plant-search");
+if (plantSearchInput) {
+    plantSearchInput.addEventListener("input", (e) => {
+        populatePlantSelect(e.target.value);
+    });
 }
 
 // ==========================
 // PLANT POPUP + NIEUWE PLANT
 // ==========================
-document.getElementById("open-plant-select").onclick = () => {
-    const vak = document.getElementById("vak-select-add").value;
-    if (!vak) return alert("Kies eerst een vak!");
-    document.getElementById("plant-select-modal").style.display = "block";
-};
+const openPlantBtn = document.getElementById("open-plant-select");
+if (openPlantBtn) {
+    openPlantBtn.onclick = () => {
+        const vak = document.getElementById("vak-select-add")?.value;
+        if (!vak) return alert("Kies eerst een vak!");
+        const modal = document.getElementById("plant-select-modal");
+        if (modal) modal.style.display = "block";
+    };
+}
 
-document.getElementById("select-close").onclick = () => {
-    document.getElementById("plant-select-modal").style.display = "none";
-};
+const selectClose = document.getElementById("select-close");
+if (selectClose) {
+    selectClose.onclick = () => {
+        const modal = document.getElementById("plant-select-modal");
+        if (modal) modal.style.display = "none";
+    };
+}
 
-document.getElementById("add-new-plant").onclick = () => {
-    const vak = document.getElementById("vak-select-add").value;
-    const name = document.getElementById("new-plant-name").value.trim();
-    const science = document.getElementById("new-plant-science").value.trim();
-    const info = document.getElementById("new-plant-info").value.trim();
-    const img = document.getElementById("new-plant-img").value.trim();
+const addNewPlantBtn = document.getElementById("add-new-plant");
+if (addNewPlantBtn) {
+    addNewPlantBtn.onclick = () => {
+        const vak = document.getElementById("vak-select-add")?.value;
+        const name = document.getElementById("new-plant-name")?.value.trim();
+        const science = document.getElementById("new-plant-science")?.value.trim();
+        const info = document.getElementById("new-plant-info")?.value.trim();
+        const img = document.getElementById("new-plant-img")?.value.trim();
 
-    if (!vak) return alert("Kies eerst een vak!");
-    if (!name) return alert("Naam is verplicht");
+        if (!vak) return alert("Kies eerst een vak!");
+        if (!name) return alert("Naam is verplicht");
 
-    vakkenData[vak].push({
-        name,
-        science,
-        info,
-        img: img || "images/logo-192.png"
-    });
+        if (!vakkenData[vak]) vakkenData[vak] = [];
 
-    document.getElementById("plant-select-modal").style.display = "none";
-    document.getElementById("new-plant-name").value = "";
-    document.getElementById("new-plant-science").value = "";
-    document.getElementById("new-plant-info").value = "";
-    document.getElementById("new-plant-img").value = "";
+        vakkenData[vak].push({
+            name,
+            science,
+            info,
+            img: img || "images/logo-192.png"
+        });
 
-    renderGarden();
-    saveData();
-};
+        const modal = document.getElementById("plant-select-modal");
+        if (modal) modal.style.display = "none";
+
+        if (document.getElementById("new-plant-name")) document.getElementById("new-plant-name").value = "";
+        if (document.getElementById("new-plant-science")) document.getElementById("new-plant-science").value = "";
+        if (document.getElementById("new-plant-info")) document.getElementById("new-plant-info").value = "";
+        if (document.getElementById("new-plant-img")) document.getElementById("new-plant-img").value = "";
+
+        renderGarden();
+        saveData();
+    };
+}
 
 // ==========================
 // PLANT DETAIL POPUP + EDIT
@@ -163,47 +213,69 @@ let editingIndex = null;
 
 function openPlantInfo(vak, index) {
     const plant = vakkenData[vak][index];
+    if (!plant) return;
 
-    document.getElementById("info-plant-img").src = plant.img;
-    document.getElementById("info-plant-name").textContent = plant.name;
-    document.getElementById("info-plant-science").textContent = plant.science || "—";
-    document.getElementById("info-plant-info").textContent = plant.info || "Geen info";
+    const imgEl = document.getElementById("info-plant-img");
+    const nameEl = document.getElementById("info-plant-name");
+    const scienceEl = document.getElementById("info-plant-science");
+    const infoEl = document.getElementById("info-plant-info");
+
+    if (imgEl) imgEl.src = plant.img || "images/logo-192.png";
+    if (nameEl) nameEl.textContent = plant.name;
+    if (scienceEl) scienceEl.textContent = plant.science || "—";
+    if (infoEl) infoEl.textContent = plant.info || "Geen info";
 
     editingVak = vak;
     editingIndex = index;
 
-    plantInfoModal.style.display = "block";
+    if (plantInfoModal) plantInfoModal.style.display = "block";
 }
 
-document.getElementById("info-close").onclick = () => {
-    plantInfoModal.style.display = "none";
+const infoClose = document.getElementById("info-close");
+if (infoClose) infoClose.onclick = () => {
+    if (plantInfoModal) plantInfoModal.style.display = "none";
 };
 
-document.getElementById("edit-plant-btn").onclick = () => {
-    const plant = vakkenData[editingVak][editingIndex];
+const editPlantBtn = document.getElementById("edit-plant-btn");
+if (editPlantBtn) editPlantBtn.onclick = () => {
+    const plant = vakkenData[editingVak]?.[editingIndex];
+    if (!plant) return;
 
-    document.getElementById("edit-plant-name").value = plant.name;
-    document.getElementById("edit-plant-science").value = plant.science;
-    document.getElementById("edit-plant-info").value = plant.info;
-    document.getElementById("edit-plant-img").value = plant.img;
+    const eName = document.getElementById("edit-plant-name");
+    const eScience = document.getElementById("edit-plant-science");
+    const eInfo = document.getElementById("edit-plant-info");
+    const eImg = document.getElementById("edit-plant-img");
 
-    plantInfoModal.style.display = "none";
-    plantEditModal.style.display = "block";
+    if (eName) eName.value = plant.name || "";
+    if (eScience) eScience.value = plant.science || "";
+    if (eInfo) eInfo.value = plant.info || "";
+    if (eImg) eImg.value = plant.img || "";
+
+    if (plantInfoModal) plantInfoModal.style.display = "none";
+    if (plantEditModal) plantEditModal.style.display = "block";
 };
 
-document.getElementById("edit-close").onclick = () => {
-    plantEditModal.style.display = "none";
+const editClose = document.getElementById("edit-close");
+if (editClose) editClose.onclick = () => {
+    if (plantEditModal) plantEditModal.style.display = "none";
 };
 
-document.getElementById("save-edit-plant").onclick = () => {
-    const plant = vakkenData[editingVak][editingIndex];
+const saveEditBtn = document.getElementById("save-edit-plant");
+if (saveEditBtn) saveEditBtn.onclick = () => {
+    const plant = vakkenData[editingVak]?.[editingIndex];
+    if (!plant) return;
 
-    plant.name = document.getElementById("edit-plant-name").value.trim();
-    plant.science = document.getElementById("edit-plant-science").value.trim();
-    plant.info = document.getElementById("edit-plant-info").value.trim();
-    plant.img = document.getElementById("edit-plant-img").value.trim() || "images/logo-192.png";
+    const newName = document.getElementById("edit-plant-name")?.value.trim();
+    const newScience = document.getElementById("edit-plant-science")?.value.trim();
+    const newInfo = document.getElementById("edit-plant-info")?.value.trim();
+    const newImg = document.getElementById("edit-plant-img")?.value.trim() || "images/logo-192.png";
 
-    plantEditModal.style.display = "none";
+    plant.name = newName || plant.name;
+    plant.science = newScience || plant.science;
+    plant.info = newInfo || plant.info;
+    plant.img = newImg || plant.img;
+
+    if (plantEditModal) plantEditModal.style.display = "none";
 
     renderGarden();
     saveData();
@@ -283,6 +355,7 @@ function makeDraggableResizable(el) {
 // ==========================
 function renderGarden(savedPositions = {}) {
     const gardenGrid = document.getElementById("garden-grid");
+    if (!gardenGrid) return;
     gardenGrid.innerHTML = "";
 
     Object.keys(vakkenData).forEach(vak => {
@@ -337,25 +410,29 @@ const popupCancel = document.getElementById("popup-cancel");
 window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    installBtn.classList.remove("hidden");
+    if (installBtn) installBtn.classList.remove("hidden");
 });
 
-installBtn.onclick = () => {
-    installPopup.classList.remove("hidden");
-};
-
-popupCancel.onclick = () => {
-    installPopup.classList.add("hidden");
-};
-
-popupInstall.onclick = async () => {
-    installPopup.classList.add("hidden");
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installBtn.classList.add("hidden");
-};
+if (installBtn) {
+    installBtn.onclick = () => {
+        if (installPopup) installPopup.classList.remove("hidden");
+    };
+}
+if (popupCancel) {
+    popupCancel.onclick = () => {
+        if (installPopup) installPopup.classList.add("hidden");
+    };
+}
+if (popupInstall) {
+    popupInstall.onclick = async () => {
+        if (installPopup) installPopup.classList.add("hidden");
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (installBtn) installBtn.classList.add("hidden");
+    };
+}
 
 // ==========================
 // INIT
@@ -369,12 +446,14 @@ document.addEventListener("DOMContentLoaded", () => {
         initVakSelect();
     } else {
         const vakSelect = document.getElementById("vak-select-add");
-        Object.keys(vakkenData).forEach(vak => {
-            const option = document.createElement("option");
-            option.value = vak;
-            option.textContent = vak;
-            vakSelect.appendChild(option);
-        });
+        if (vakSelect) {
+            Object.keys(vakkenData).forEach(vak => {
+                const option = document.createElement("option");
+                option.value = vak;
+                option.textContent = vak;
+                vakSelect.appendChild(option);
+            });
+        }
     }
 
     renderGarden(positions);
