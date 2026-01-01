@@ -18,6 +18,27 @@
     "image": "images/wortel.png"
   },
   {
+  "name": "Komkommer",
+  "latin": "Cucumis sativus",
+  "description": "De komkommer is een eenjarige groenteplant die lange, frisse vruchten produceert. Ze wordt vooral geteeld in de moestuin of serre en heeft veel warmte en water nodig.",
+  "specs": {
+    "plantgroep": "Eenjarige groenteplanten",
+    "bloeikleur": "Geel",
+    "standplaats": "Zonnig, Warm",
+    "familie": "Komkommerachtigen",
+    "bladkleur": "Groen",
+    "bloeitijd": "juni - augustus",
+    "wintergroen": "Nee",
+    "planthoogte": "150 cm - 300 cm",
+    "grondsoort": "Humusrijke, goed doorlatende grond",
+    "plantafstand": "2 - 3 stuks/m²",
+    "toepassingssuggesties": "Moestuin, Serre, Klimrek",
+    "winterhardheid": "Niet winterhard",
+    "groeiwijze": "Klimmend of kruipend",
+    "gebruik": "Wordt vers gegeten in salades of als snack"
+  }
+  },
+  {
     "name": "Radijs",
     "latin": "Raphanus Sativus",
     "description": "Zaaitijd: april-juni\nPlanttijd: mei-juli\nPlantafstand: 5x5 cm\nOogsttijd: juni-augustus\nRadijs vraagt om een luchtige, losse grond die goed waterdoorlatend is. Zorg wel voor regelmatig extra water, anders schieten de planten door. Zaai niet bij te warm weer, want dan vormt zich geen verdikte wortel. 3 tot 4 weken na zaaien kunnen de eerste radijsjes geoogst worden.",
